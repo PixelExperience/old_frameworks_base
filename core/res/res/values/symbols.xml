@@ -3078,4 +3078,8 @@
 
   <java-symbol type="integer" name="config_stableDeviceDisplayWidth" />
   <java-symbol type="integer" name="config_stableDeviceDisplayHeight" />
+
+  <!-- SIM contact batch operation -->
+  <java-symbol type="bool" name="config_volte_preferred" />
+
 </resources>
