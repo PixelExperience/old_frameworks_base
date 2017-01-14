@@ -104,6 +104,15 @@
          prevent wasting cpu cycles on the dimming animation -->
     <bool name="config_navigation_bar_enable_auto_dim_no_visible_wallpaper">true</bool>
 
+    <!-- Whether to enable shifting of elements in the status bar and the navigation bar.
+         Should be enabled for OLED devices to reduce/prevent burn in on the status bar
+         and on the navigation bar and disabled for all other devices. -->
+    <bool name="config_statusBarBurnInProtection">false</bool>
+
+    <!-- Amount of time in seconds to wait before shifting elements around when the burn-in
+         protection is enabled for status bar and navigation bar -->
+    <integer name="config_shift_interval">60</integer>
+
     <!-- Whether QuickSettings is in a phone landscape -->
     <bool name="quick_settings_wide">false</bool>
 
