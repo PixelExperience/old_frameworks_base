@@ -1018,6 +1018,8 @@ public class StatusBar extends SystemUI implements DemoMode,
         Dependency.get(ActivityStarterDelegate.class).setActivityStarterImpl(this);
 
         Dependency.get(ConfigurationController.class).addCallback(this);
+
+        mFlashlightController = Dependency.get(FlashlightController.class);
     }
 
     protected void createIconController() {
