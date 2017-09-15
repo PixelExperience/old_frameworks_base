@@ -71,4 +71,7 @@
 
     <!-- Battery saver tile -->
     <string name="battery_saver_qs_tile_fully_charged">Fully Charged</string>
+
+    <!-- Recents kill tile -->
+    <string name="recents_app_killed">App killed</string>
 </resources>

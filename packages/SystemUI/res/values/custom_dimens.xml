@@ -21,6 +21,7 @@
     <dimen name="net_traffic_txt_img_padding">2dp</dimen>
 
     <!-- Recents task locking button -->
-    <dimen name="recents_task_view_header_lock_button_padding">48dp</dimen>
+    <dimen name="recents_task_view_header_lock_button_padding">45dp</dimen>
+    <dimen name="recents_task_view_header_kill_button_padding">30dp</dimen>
 
 </resources>
