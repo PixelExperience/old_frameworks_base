@@ -2544,7 +2544,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 } catch (RemoteException e1) {}
             }
             mVolumeMusicControl = Settings.System.getIntForUser(resolver,
-                    Settings.System.VOLUME_BUTTON_MUSIC_CONTROL, 1,
+                    Settings.System.VOLUME_BUTTON_MUSIC_CONTROL, 0,
                     UserHandle.USER_CURRENT) != 0;
             mVolumeWakeSupport = Settings.System.getIntForUser(resolver,
                     Settings.System.VOLUME_WAKE_SCREEN,0,
