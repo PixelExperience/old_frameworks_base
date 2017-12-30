@@ -3935,6 +3935,12 @@ public final class Settings {
         private static final Validator SHOW_BATTERY_PERCENT_VALIDATOR = sBooleanValidator;
 
         /**
+         * Whether to display the power menu dialog while on the lockscreen
+         * @hide
+         */
+        public static final String POWERMENU_LOCKSCREEN = "powermenu_lockscreen";
+
+        /**
          * Whether to display the 4g or lte network icon in the statusbar
          * @hide
          */
