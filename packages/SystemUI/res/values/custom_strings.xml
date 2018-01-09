@@ -52,6 +52,9 @@
     <!-- Network Traffic -->
     <string name="network_traffic_state_title">Network activity indicator</string>
 
+    <!-- Battery saver tile -->
+    <string name="battery_saver_qs_tile_fully_charged">Fully Charged</string>
+
     <!-- Global actions -->
     <string name="global_action_restart_advanced">Advanced</string>
     <string name="global_action_restart_recovery">Recovery</string>
