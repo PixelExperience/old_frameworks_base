@@ -135,4 +135,7 @@
   <!-- LED pulse -->
   <java-symbol type="bool" name="config_ledCanPulse" />
 
+  <!-- Flashlight on power button -->
+  <java-symbol type="integer" name="config_flashlightProximityTimeout" />
+
 </resources>
