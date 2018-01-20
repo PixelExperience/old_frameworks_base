@@ -6,4 +6,13 @@
     <!-- Ambient play -->
     <string name="ambient_recognition_notification">Now Playing</string>
     <string name="ambient_recognition_information">%1$s by %2$s</string>
+
+    <!-- Advanced restart menu -->
+    <!-- Button to restart the device into recovery mode, within the Restart Options dialog -->
+    <string name="global_action_restart_recovery">Recovery</string>
+    <!-- Button to restart the device into bootloader mode, within the Restart Options dialog -->
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <!-- Button to restart the device into download mode, within the Restart Options dialog -->
+    <string name="global_action_restart_download">Download mode</string>
+
 </resources>
