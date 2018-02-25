@@ -68,4 +68,9 @@
     <!-- Notification sender text color -->
     <color name="sender_text_color">@android:color/black</color>
 
+    <!-- Notification icon tint -->
+    <color name="notification_icon_default_color">@android:color/notification_default_color</color>
+    <!-- Ambient notification icon tint -->
+    <color name="notification_ambient_icon_default_color">@color/notification_icon_default_color</color>
+
 </resources>
