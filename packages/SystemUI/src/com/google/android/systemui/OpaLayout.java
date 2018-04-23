@@ -691,7 +691,7 @@ public class OpaLayout extends FrameLayout implements ButtonInterface{
 
         Drawable drawHomeIcon = res.getDrawable(intHomeDrawable);
         drawHomeIcon.setColorFilter(null);
-        drawHomeIcon.setColorFilter(homeColor, PorterDuff.Mode.SRC_IN);
+        drawHomeIcon.setColorFilter(homeColor, PorterDuff.Mode.SRC_ATOP);
 
         if (isLightColor(homeColor)) {
             ShadowKeyDrawable withShadow = new ShadowKeyDrawable(drawHomeIcon.mutate());
