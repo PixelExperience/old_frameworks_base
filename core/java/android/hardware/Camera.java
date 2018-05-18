@@ -238,6 +238,12 @@ public class Camera {
     public static final int CAMERA_HAL_API_VERSION_1_0 = 0x100;
 
     /**
+     * Camera HAL device API version 2.0
+     * @hide
+     */
+    public static final int CAMERA_HAL_API_VERSION_2_0 = 0x300;
+
+    /**
      * A constant meaning the normal camera connect/open will be used.
      */
     private static final int CAMERA_HAL_API_VERSION_NORMAL_CONNECT = -2;
@@ -562,6 +568,8 @@ public class Camera {
 
         //Force HAL1 if the package name falls in this bucket
         String packageList = SystemProperties.get("camera.hal1.packagelist", "");
+
+        Log.e(TAG, "untouched halVersion " + Integer.toString(halVersion));
         if (packageList.length() > 0) {
             TextUtils.StringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
             splitter.setString(packageList);
