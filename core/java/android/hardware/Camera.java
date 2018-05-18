@@ -571,6 +571,37 @@ public class Camera {
                     break;
                 }
             }
+        }else{
+            //Force HAL3 if the package name falls in this bucket
+            String hal3PackageList = SystemProperties.get("camera.hal3.hal3PackageList", "");
+            boolean shouldSetHal3Prop = false;
+            boolean hal3Enabled = SystemProperties.get("persist.camera.HAL3.enabled", "0").equals("1");
+            if (hal3PackageList.length() > 0) {
+                splitter = new TextUtils.SimpleStringSplitter(",");
+                splitter.setString(hal3PackageList);
+                for (String str : splitter) {
+                    if (str.contains("/")) {
+                        ActivityManager am = (ActivityManager) ActivityThread.systemMain().getSystemContext().getSystemService(ACTIVITY_SERVICE);
+                        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                        String targetClassName = taskInfo.get(0).topActivity.getClassName();
+                        String[] forcedPackage = str.split("/");
+                        if (packageName.equals(forcedPackage[0]) && targetClassName.equals(forcedPackage[1])) {
+                            halVersion = 768; // 0x300
+                            shouldSetHal3Prop = true;
+                            break;
+                        }
+                    }else{
+                        if (packageName.equals(str)) {
+                            halVersion = 768; // 0x300
+                            shouldSetHal3Prop = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (hal3Enabled != shouldSetHal3Prop){
+                SystemProperties.set("persist.camera.HAL3.enabled",shouldSetHal3Prop ? "1" : "0");
+            }
         }
         return native_setup(new WeakReference<Camera>(this), cameraId, halVersion, packageName);
     }
