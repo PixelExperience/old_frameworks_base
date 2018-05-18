@@ -238,6 +238,12 @@ public class Camera {
     public static final int CAMERA_HAL_API_VERSION_1_0 = 0x100;
 
     /**
+     * Camera HAL device API version 2.0
+     * @hide
+     */
+    public static final int CAMERA_HAL_API_VERSION_2_0 = 0x300;
+
+    /**
      * A constant meaning the normal camera connect/open will be used.
      */
     private static final int CAMERA_HAL_API_VERSION_NORMAL_CONNECT = -2;
@@ -562,6 +568,10 @@ public class Camera {
 
         //Force HAL1 if the package name falls in this bucket
         String packageList = SystemProperties.get("camera.hal1.packagelist", "");
+
+        //HAL3 package list
+        String hal3PackageList = SystemProperties.get("camera.hal3.packagelist", "");
+
         if (packageList.length() > 0) {
             TextUtils.StringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
             splitter.setString(packageList);
@@ -570,6 +580,33 @@ public class Camera {
                     halVersion = CAMERA_HAL_API_VERSION_1_0;
                     break;
                 }
+            }
+        }else if (hal3PackageList.length() > 0) { //Force HAL3 if the package name falls in this bucket
+            boolean shouldSetHal3Prop = false;
+            boolean hal3Enabled = SystemProperties.get("persist.camera.HAL3.enabled", "0").equals("1");
+            splitter = new TextUtils.SimpleStringSplitter(",");
+            splitter.setString(hal3PackageList);
+            for (String str : splitter) {
+                if (str.contains("/")) {
+                    ActivityManager am = (ActivityManager) ActivityThread.systemMain().getSystemContext().getSystemService(ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                    String targetClassName = taskInfo.get(0).topActivity.getClassName();
+                    String[] forcedPackage = str.split("/");
+                    if (packageName.equals(forcedPackage[0]) && targetClassName.equals(forcedPackage[1])) {
+                        halVersion = CAMERA_HAL_API_VERSION_2_0;
+                        shouldSetHal3Prop = true;
+                        break;
+                    }
+                }else{
+                    if (packageName.equals(str)) {
+                        halVersion = CAMERA_HAL_API_VERSION_2_0;
+                        shouldSetHal3Prop = true;
+                        break;
+                    }
+                }
+            }
+            if (hal3Enabled != shouldSetHal3Prop){
+                SystemProperties.set("persist.camera.HAL3.enabled",shouldSetHal3Prop ? "1" : "0");
             }
         }
         return native_setup(new WeakReference<Camera>(this), cameraId, halVersion, packageName);
