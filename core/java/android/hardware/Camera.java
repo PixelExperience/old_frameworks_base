@@ -21,6 +21,7 @@ import static android.system.OsConstants.*;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.app.ActivityThread;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
@@ -236,6 +237,12 @@ public class Camera {
      * @hide
      */
     public static final int CAMERA_HAL_API_VERSION_1_0 = 0x100;
+
+    /**
+     * Camera HAL device API version 2.0
+     * @hide
+     */
+    public static final int CAMERA_HAL_API_VERSION_2_0 = 0x300;
 
     /**
      * A constant meaning the normal camera connect/open will be used.
@@ -562,6 +569,11 @@ public class Camera {
 
         //Force HAL1 if the package name falls in this bucket
         String packageList = SystemProperties.get("camera.hal1.packagelist", "");
+
+        //HAL3 package list
+        String hal3PackageList = SystemProperties.get("camera.hal3.packagelist", "");
+
+        Log.e(TAG, "untouched halVersion " + Integer.toString(halVersion));
         if (packageList.length() > 0) {
             TextUtils.StringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
             splitter.setString(packageList);
@@ -571,6 +583,60 @@ public class Camera {
                     break;
                 }
             }
+        }else if (hal3PackageList.length() > 0) { //Force HAL3 if the package name falls in this bucket
+        Log.e(TAG, "camera.hal3.packagelist is present");
+            boolean shouldSetHal3Prop = false;
+            boolean hal3Enabled = SystemProperties.get("persist.camera.HAL3.enabled", "0").equals("1");
+            TextUtils.StringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
+            splitter.setString(hal3PackageList);
+            if (hal3Enabled){
+                
+        Log.e(TAG, "persist.camera.HAL3.enabled=1");
+            }else{
+                
+        Log.e(TAG, "persist.camera.HAL3.enabled=0");
+            }
+            for (String str : splitter) {
+                
+        Log.e(TAG, "line " + str);
+                if (str.contains("/")) {
+                    
+        Log.e(TAG, "line contains component");
+                    Context context = ActivityThread.systemMain().getSystemContext();
+                    ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                    String targetClassName = taskInfo.get(0).topActivity.getClassName();
+                    
+        Log.e(TAG, "packageName " + packageName);
+        Log.e(TAG, "targetClassName " + targetClassName);
+                    String[] forcedPackage = str.split("/");
+                    
+        Log.e(TAG, "forcedPackage[0] " + forcedPackage[0]);
+        Log.e(TAG, "forcedPackage[1] " + forcedPackage[1]);
+                    if (packageName.equals(forcedPackage[0]) && targetClassName.equals(forcedPackage[1])) {
+                        halVersion = CAMERA_HAL_API_VERSION_2_0;
+                        shouldSetHal3Prop = true;
+                        break;
+                    }
+                }else{
+        Log.e(TAG, "packageName " + packageName);
+                    if (packageName.equals(str)) {
+                        halVersion = CAMERA_HAL_API_VERSION_2_0;
+                        shouldSetHal3Prop = true;
+                        break;
+                    }
+                }
+            }
+            if (hal3Enabled != shouldSetHal3Prop){
+                
+                try {
+                SystemProperties.set("persist.camera.HAL3.enabled",shouldSetHal3Prop ? "1" : "0");
+                } catch (Exception e) {
+                    System.err.println("Error setting prop " + e);
+                }
+            }
+            
+        Log.e(TAG, "new halVersion " + Integer.toString(halVersion));
         }
         return native_setup(new WeakReference<Camera>(this), cameraId, halVersion, packageName);
     }
