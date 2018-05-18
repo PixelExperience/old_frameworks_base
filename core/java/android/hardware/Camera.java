@@ -571,6 +571,8 @@ public class Camera {
                     break;
                 }
             }
+        }else if(SystemProperties.get("camera.force_hal3.current_app", "").equals("1")){
+            halVersion = CAMERA_HAL_API_VERSION_2_4; // TODO: add hal3 number here
         }
         return native_setup(new WeakReference<Camera>(this), cameraId, halVersion, packageName);
     }

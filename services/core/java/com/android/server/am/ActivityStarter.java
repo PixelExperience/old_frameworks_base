@@ -113,6 +113,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.os.SystemProperties;
 import android.service.voice.IVoiceInteractionSession;
 import android.text.TextUtils;
 import android.util.EventLog;
@@ -322,6 +323,32 @@ class ActivityStarter {
         if (err == ActivityManager.START_SUCCESS) {
             Slog.i(TAG, "START u" + userId + " {" + intent.toShortString(true, true, true, false)
                     + "} from uid " + callingUid);
+
+            //Force HAL3 if the package name falls in this bucket
+            String packageList = SystemProperties.get("camera.hal3.packagelist", "");
+            if (packageList.length() > 0) {
+                String targetPackageName = intent.getComponent().getPackageName();
+                String targetClassName = intent.getComponent().getClassName();
+                boolean shouldSetHal3Prop;
+                splitter = new TextUtils.SimpleStringSplitter(",");
+                splitter.setString(packageList);
+                for (String str : splitter) {
+                    if (str.contains("/")) {
+                        String[] forcedPackage = str.split("/");
+                        if (targetPackageName.equals(forcedPackage[0]) && targetClassName.equals(forcedPackage[1])) {
+                            shouldSetHal3Prop = true;
+                            break;
+                        }
+                    }else{
+                        if (targetPackageName.equals(str)) {
+                            shouldSetHal3Prop = true;
+                            break;
+                        }
+                    }
+                }
+                SystemProperties.set("camera.force_hal3.current_app",shouldSetHal3Prop ? "1" : "");
+            }
+
         }
 
         ActivityRecord sourceRecord = null;
