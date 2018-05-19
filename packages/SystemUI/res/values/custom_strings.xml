@@ -71,4 +71,10 @@
 
     <!-- Battery saver tile -->
     <string name="battery_saver_qs_tile_fully_charged">Fully Charged</string>
+
+    <!-- AmbientPlay: The contents of the displayed recognition. -->
+    <string name="ambient_recognition_notification">Now Playing</string>
+    <string name="ambient_recognition_notification_channel">Recognized Music Notifications</string>
+    <string name="ambient_recognition_information">%1$s by %2$s</string>
+
 </resources>
