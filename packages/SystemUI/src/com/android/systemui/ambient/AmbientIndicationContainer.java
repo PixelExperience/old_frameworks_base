@@ -16,6 +16,7 @@
  */
 package com.android.systemui.ambient;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -24,6 +25,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.airbnb.lottie.LottieAnimationView;
 
 import com.android.systemui.R;
 import com.android.systemui.ambient.AmbientIndicationInflateListener;
@@ -37,7 +40,7 @@ import static android.provider.Settings.Secure.AMBIENT_RECOGNITION_KEYGUARD;
 public class AmbientIndicationContainer extends AutoReinflateContainer implements DozeReceiver {
     private View mAmbientIndication;
     private boolean mDozing;
-    private ImageView mIcon;
+    private LottieAnimationView mIcon;
     private CharSequence mIndication;
     private StatusBar mStatusBar;
     private TextView mText;
@@ -62,12 +65,12 @@ public class AmbientIndicationContainer extends AutoReinflateContainer implement
 
     public void updateAmbientIndicationView(View view) {
         mAmbientIndication = findViewById(R.id.ambient_indication);
-        mText = (TextView)findViewById(R.id.ambient_indication_text);
-        mIcon = (ImageView)findViewById(R.id.ambient_indication_icon);
+        mText = (TextView) findViewById(R.id.ambient_indication_text);
+        mIcon = (LottieAnimationView) findViewById(R.id.ambient_indication_icon);
         setIndication(mSong, mArtist);
     }
 
-    private void updateAmbientIndicationForKeyguard() {
+    public void updateAmbientIndicationForKeyguard() {
         boolean recognitionEnabled = Settings.Secure.getInt(
             mContext.getContentResolver(), AMBIENT_RECOGNITION, 0) != 0;
         int recognitionKeyguard = Settings.Secure.getIntForUser(
@@ -77,6 +80,7 @@ public class AmbientIndicationContainer extends AutoReinflateContainer implement
         if (recognitionKeyguard == 1) {
             if (mSong != null && mArtist != null) {
                 mAmbientIndication.setVisibility(View.VISIBLE);
+                doMusicNoteAnimation();
             }
             return;
         }
@@ -89,11 +93,30 @@ public class AmbientIndicationContainer extends AutoReinflateContainer implement
     }
 
     public void setIndication(String song, String artist) {
-        mText.setText(String.format(mContext.getResources().getString(
-            R.string.ambient_recognition_information), song, artist));
+        if (song != null && artist != null) {
+            mText.setText(String.format(mContext.getResources().getString(
+                R.string.ambient_recognition_information), song, artist));
+            mIcon.setAnimation(R.raw.ambient_music_note);
+        }
         mSong = song;
         mArtist = artist;
         mAmbientIndication.setClickable(false);
         updateAmbientIndicationForKeyguard();
+    }
+
+    private void doMusicNoteAnimation() {
+        ValueAnimator anim = ValueAnimator.ofFloat(0f, 1f).setDuration(4000);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnim) {
+                mIcon.setProgress((Float) valueAnim.getAnimatedValue());
+            }
+        });
+
+        if (mIcon.getProgress() == 0f) {
+            anim.start();
+        } else {
+            mIcon.setProgress(0f);
+        }
     }
 }
