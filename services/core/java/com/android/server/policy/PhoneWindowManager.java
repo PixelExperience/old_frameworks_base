@@ -1502,7 +1502,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mBeganFromNonInteractive = true;
                 } else {
                     if ((mTorchActionMode != 1) ||
-                            (mTorchActionMode == 1 && isScreenOn() && !isDozeMode())) {
+                            (mTorchActionMode == 1 && !isInLockTaskMode() && isScreenOn() && !isDozeMode())) {
                         wakeUpFromPowerKey(event.getDownTime());
                     }
 
@@ -1578,7 +1578,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mHandler.removeMessages(MSG_POWER_LONG_PRESS);
             // See if we deferred screen wake because long press power for torch is enabled
             if (mResolvedLongPressOnPowerBehavior == LONG_PRESS_POWER_TORCH
-                    && (!isScreenOn() || isDozeMode())) {
+                    && (!isInLockTaskMode() && (!isScreenOn() || isDozeMode()))) {
                 wakeUpFromPowerKey(SystemClock.uptimeMillis());
             }
         }
@@ -1648,7 +1648,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     break;
                 }
             }
-        } else if ((mTorchActionMode == 1) && (!isScreenOn() || isDozeMode())) {
+        } else if ((mTorchActionMode == 1) && (!isInLockTaskMode() && (!isScreenOn() || isDozeMode()))) {
             wakeUpFromPowerKey(eventTime);
         }
     }
@@ -1670,7 +1670,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void powerMultiPressAction(long eventTime, boolean interactive, int behavior) {
         switch (behavior) {
             case MULTI_PRESS_POWER_NOTHING:
-                if ((mTorchActionMode == 1) && (!isScreenOn() || isDozeMode())) {
+                if ((mTorchActionMode == 1) && (!isInLockTaskMode() && (!isScreenOn() || isDozeMode()))) {
                     toggleFlashLightProximityCheck();
                 }
                 break;
@@ -1823,10 +1823,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (FactoryTest.isLongPressOnPowerOffEnabled()) {
             return LONG_PRESS_POWER_SHUT_OFF_NO_CONFIRM;
         }
-        if ((mTorchActionMode == 2) && (!isScreenOn() || isDozeMode())) {
+        if ((mTorchActionMode == 2) && (!isInLockTaskMode() && (!isScreenOn() || isDozeMode()))) {
             return LONG_PRESS_POWER_TORCH;
         }
         return mLongPressOnPowerBehavior;
+    }
+
+    private boolean isInLockTaskMode() {
+        try {
+            return ActivityManagerNative.getDefault().isInLockTaskMode();
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 
     private boolean hasLongPressOnPowerBehavior() {
