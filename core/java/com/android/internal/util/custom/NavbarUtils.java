@@ -61,7 +61,8 @@ public class NavbarUtils {
     }
 
     public static boolean canDisableNavigationBar(Context context){
-        return context.getResources().getBoolean(com.android.internal.R.bool.config_canDisableNavigationBar);
+        boolean hasHwKeys = context.getResources().getInteger(com.android.internal.R.integer.config_deviceHardwareKeys) != 64; // 64 = Volume keys
+        return context.getResources().getBoolean(com.android.internal.R.bool.config_canDisableNavigationBar) || hasHwKeys;
     }
 
     public static void reloadNavigationBar(Context context){
