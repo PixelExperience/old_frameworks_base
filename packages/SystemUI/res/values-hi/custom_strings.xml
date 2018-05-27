@@ -31,6 +31,7 @@
   <string name="screen_pinning_description_back_nav_visible">यह इसे तब तक दृश्य में रखता है जब तक आप अनपिन नहीं करते। अनपिन करने के लिए बैक बटन को कुछ देर दबाएँ रखें अथवा नेविगेशन पट्टी पर चिह्नित बटन टेप करें</string>
   <string name="screen_pinning_description_power_nav_visible">यह इसे तब तक दृश्य में रखता है जब तक आप अनपिन नहीं करते। अनपिन करने के लिए पावर बटन को कुछ देर दबाएँ रखें अथवा नेविगेशन पट्टी पर चिह्नित बटन टेप करें</string>
   <!-- Indication on the keyguard that is shown when the device is charging with a turbo power charger. Should match keyguard_plugged_in_turbo_power_charging [CHAR LIMIT=40]-->
+  <string name="keyguard_indication_turbo_power_time">जल्द चार्ज हो रहा है(<xliff:g id="पूरा चार्ज होने में">%s</xliff:g>बाकी है)</string>
   <string name="keyguard_plugged_in_turbo_power_charging">टर्बोपावर जुड़ा हुआ है</string>
   <!-- Show lte/4g switch -->
   <string name="show_lte_fourgee_title">LTE के बजाय 4G</string>

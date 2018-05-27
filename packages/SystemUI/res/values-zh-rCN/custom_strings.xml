@@ -36,7 +36,7 @@
   <!-- Show lte/4g switch -->
   <string name="show_lte_fourgee_title">显示 4G 图标而非 LTE 图标</string>
   <!-- Network Traffic -->
-  <string name="network_traffic_state_title">网络活动指示</string>
+  <string name="network_traffic_state_title">网络活动指示器</string>
   <!-- Global actions -->
   <string name="global_action_restart_advanced">高级重启</string>
   <string name="global_action_restart_recovery">恢复模式</string>

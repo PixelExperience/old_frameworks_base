@@ -19,7 +19,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Message to show the user when their vendor image doesn't match the build's fingerprint. -->
-  <string name="custom_system_error_manufacturer">Se ha detectado una falta de coincidencia de imagen de proveedor. Por lo general esto significa que su imagen de proveedor está desactualizado. Asegúrese de que su imagen de proveedor coincide con <xliff:g id="fingerprint">%1$s</xliff:g>.</string>
+  <string name="custom_system_error_manufacturer">Se ha detectado una modificación en la imagen del fabricante. Por lo general esto significa que su imagen de proveedor está desactualizada. Asegúrese de que la imagen de su fabricante coincide con <xliff:g id="fingerprint">%1$s</xliff:g>.</string>
   <!-- Screen pinning exit mode -->
   <string name="lock_to_app_toast_back">Para dejar de fijar ésta pantalla mantenga presionado el botón Atrás</string>
   <string name="lock_to_app_toast_power">Mantén pulsado el botón de Encendido para dejar de fijar esta pantalla</string>
