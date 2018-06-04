@@ -4281,8 +4281,7 @@ public final class Settings {
             LOCK_TO_APP_ENABLED,
             NOTIFICATION_SOUND,
             ACCELEROMETER_ROTATION,
-            SHOW_BATTERY_PERCENT,
-            NOTIFICATION_LIGHT_SCREEN_ON
+            SHOW_BATTERY_PERCENT
         };
 
         /**
@@ -7527,7 +7526,6 @@ public final class Settings {
             SYNC_PARENT_SOUNDS,
             CAMERA_DOUBLE_TWIST_TO_FLIP_ENABLED,
             CAMERA_DOUBLE_TAP_POWER_GESTURE_DISABLED,
-            TORCH_POWER_BUTTON_GESTURE,
             SYSTEM_NAVIGATION_KEYS_ENABLED,
             QS_TILES,
             DOZE_ENABLED,
@@ -7546,7 +7544,7 @@ public final class Settings {
             SCREENSAVER_ENABLED,
             SCREENSAVER_COMPONENTS,
             SCREENSAVER_ACTIVATE_ON_DOCK,
-            SCREENSAVER_ACTIVATE_ON_SLEEP,
+            SCREENSAVER_ACTIVATE_ON_SLEEP
         };
 
         /** @hide */
