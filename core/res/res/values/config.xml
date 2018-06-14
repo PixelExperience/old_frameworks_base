@@ -3465,4 +3465,7 @@
     <!-- List of names that represent dual SoftAp interfaces. -->
     <string-array translatable="false" name="config_wifi_dual_sap_interfaces">
     </string-array>
+
+    <!-- Whether or not we should show the option to show battery percentage -->
+    <bool name="config_battery_percentage_setting_available">true</bool>
 </resources>
