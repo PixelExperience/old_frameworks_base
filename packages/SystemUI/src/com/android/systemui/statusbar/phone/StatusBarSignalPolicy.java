@@ -227,7 +227,7 @@ public class StatusBarSignalPolicy implements NetworkControllerImpl.SignalCallba
         state.activityOut = activityOut && mActivityEnabled;
         state.volteId = volteIcon;
 
-        // Always send a copy to maintain value type semantics
+      // Always send a copy to maintain value type semantics
         mIconController.setMobileIcons(mSlotMobile, MobileIconState.copyStates(mMobileStates));
 
         if (typeChanged) {
@@ -422,6 +422,7 @@ public class StatusBarSignalPolicy implements NetworkControllerImpl.SignalCallba
         public int volteId;
         private boolean mProvisioned = true;
         public Context context;
+        public int volteId;
 
         private MobileIconState(int subId, Context context) {
             super();
