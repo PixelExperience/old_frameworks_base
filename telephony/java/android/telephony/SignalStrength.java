@@ -827,6 +827,7 @@ public class SignalStrength implements Parcelable {
          * dB= Number of Resource blocksxRSRP/RSSI SNR = gain=signal/noise ratio
          * = -10log P1/P2 dB
          */
+        String method = android.os.SystemProperties.get("persist.sys.signal.level", "default");
         int rssiIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN, rsrpIconLevel = -1, snrIconLevel = -1;
 
         int[] threshRsrp = Resources.getSystem().getIntArray(
@@ -868,6 +869,29 @@ public class SignalStrength implements Parcelable {
                 + rsrpIconLevel + " snrIconLevel:" + snrIconLevel
                 + " lteRsrpBoost:" + mLteRsrpBoost);
 
+        /* Valid values are (0-63, 99) as defined in TS 36.331 */
+        if (mLteSignalStrength > 63) rssiIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+        else if (mLteSignalStrength >= 12) rssiIconLevel = SIGNAL_STRENGTH_GREAT;
+        else if (mLteSignalStrength >= 8) rssiIconLevel = SIGNAL_STRENGTH_GOOD;
+        else if (mLteSignalStrength >= 5) rssiIconLevel = SIGNAL_STRENGTH_MODERATE;
+        else if (mLteSignalStrength >= 0) rssiIconLevel = SIGNAL_STRENGTH_POOR;
+
+        if (DBG) log("getLTELevel - rssi:" + mLteSignalStrength + " rssiIconLevel:"
+                + rssiIconLevel);
+
+        if("rsrp".equals(method)) {
+            if(rsrpIconLevel == -1) rsrpIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+            return rsrpIconLevel;
+        }
+        if("rssnr".equals(method)) {
+            if(snrIconLevel == -1) snrIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+            return snrIconLevel;
+        }
+        if("rssi".equals(method)) {
+            if(rssiIconLevel == -1) rssiIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
+            return rssiIconLevel;
+        }
+
         /* Choose a measurement type to use for notification */
         if (snrIconLevel != -1 && rsrpIconLevel != -1) {
             /*
@@ -882,15 +906,6 @@ public class SignalStrength implements Parcelable {
 
         if (rsrpIconLevel != -1) return rsrpIconLevel;
 
-        /* Valid values are (0-63, 99) as defined in TS 36.331 */
-        if (mLteSignalStrength > 63) rssiIconLevel = SIGNAL_STRENGTH_NONE_OR_UNKNOWN;
-        else if (mLteSignalStrength >= 12) rssiIconLevel = SIGNAL_STRENGTH_GREAT;
-        else if (mLteSignalStrength >= 8) rssiIconLevel = SIGNAL_STRENGTH_GOOD;
-        else if (mLteSignalStrength >= 5) rssiIconLevel = SIGNAL_STRENGTH_MODERATE;
-        else if (mLteSignalStrength >= 0) rssiIconLevel = SIGNAL_STRENGTH_POOR;
-
-        if (DBG) log("getLTELevel - rssi:" + mLteSignalStrength + " rssiIconLevel:"
-                + rssiIconLevel);
         return rssiIconLevel;
 
     }
