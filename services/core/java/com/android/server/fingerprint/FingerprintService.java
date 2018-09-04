@@ -964,7 +964,8 @@ public class FingerprintService extends SystemService implements IHwBinder.Death
                 public void run() {
                     int remaining2 = remaining;
                     String fp = android.os.SystemProperties.get("ro.vendor.build.fingerprint");
-                    if(fp != null && (fp.contains("starlte") || fp.contains("star2lte") || fp.contains("starqlte") || fp.contains("star2qlte")))
+                    if(fp.matches(".*(crown|star)[q2]*lte.*") ||
+                            fp.matches(".*(SC-0[23]K|SCV3[89]).*"))
                         remaining2 = 100 - remaining2;
                     handleEnrollResult(deviceId, fingerId, groupId, remaining2);
                 }
