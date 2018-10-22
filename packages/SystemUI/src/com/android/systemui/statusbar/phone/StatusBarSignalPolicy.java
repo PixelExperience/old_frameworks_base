@@ -77,7 +77,7 @@ public class StatusBarSignalPolicy implements NetworkControllerImpl.SignalCallba
     private ArrayList<MobileIconState> mMobileStates = new ArrayList<MobileIconState>();
     private WifiIconState mWifiIconState = new WifiIconState();
 
-    private static TelephonyExtUtils extTelephony;
+    private TelephonyExtUtils extTelephony;
 
     public StatusBarSignalPolicy(Context context, StatusBarIconController iconController) {
         mContext = context;
@@ -97,7 +97,13 @@ public class StatusBarSignalPolicy implements NetworkControllerImpl.SignalCallba
         mSecurityController.addCallback(this);
 
         TelephonyExtUtils.getInstance(context).addListener(this);
-        extTelephony = TelephonyExtUtils.getInstance(context);
+    }
+
+    private TelephonyExtUtils getExtTelephonyInstance(){
+        if (extTelephony == null){
+            extTelephony = TelephonyExtUtils.getInstance(mContext);
+        }
+        return extTelephony;
     }
 
     @Override
@@ -422,8 +428,8 @@ public class StatusBarSignalPolicy implements NetworkControllerImpl.SignalCallba
         private MobileIconState(int subId) {
             super();
             this.subId = subId;
-            if (extTelephony.hasService()) {
-                mProvisioned = extTelephony.isSubProvisioned(subId);
+            if (getExtTelephonyInstance().hasService()) {
+                mProvisioned = getExtTelephonyInstance().isSubProvisioned(subId);
             }
         }
 
