@@ -8485,6 +8485,12 @@ public class PackageManagerService extends IPackageManager.Stub
     }
 
     private void scanDirLI(File scanDir, int parseFlags, int scanFlags, long currentTime) {
+        String[] systemOverlayPackages = {"com.android.systemui.theme.dark",
+                                          "com.android.internal.display.cutout.emulation.corner",
+                                          "com.android.internal.display.cutout.emulation.double",
+                                          "com.android.internal.display.cutout.emulation.narrow",
+                                          "com.android.internal.display.cutout.emulation.tall",
+                                          "com.android.internal.display.cutout.emulation.wide"};
         final File[] files = scanDir.listFiles();
         if (ArrayUtils.isEmpty(files)) {
             Log.d(TAG, "No files in app dir " + scanDir);
@@ -8518,6 +8524,13 @@ public class PackageManagerService extends IPackageManager.Stub
                 int errorCode = PackageManager.INSTALL_SUCCEEDED;
 
                 if (throwable == null) {
+                    // Ignore vendor overlays that should live on system/app
+                    if ((scanDir.getPath() == VENDOR_OVERLAY_DIR || scanDir.getPath() == PRODUCT_OVERLAY_DIR) 
+                        && Arrays.asList(systemOverlayPackages).contains(parseResult.pkg.applicationInfo.packageName)){
+                        errorCode = PackageManager.INSTALL_REASON_UNKNOWN;
+                        Slog.w(TAG, "Ignoring " + parseResult.scanFile + " because is already installed on /system");
+                    }
+
                     // TODO(toddke): move lower in the scan chain
                     // Static shared libraries have synthetic package names
                     if (parseResult.pkg.applicationInfo.isStaticSharedLibrary()) {
