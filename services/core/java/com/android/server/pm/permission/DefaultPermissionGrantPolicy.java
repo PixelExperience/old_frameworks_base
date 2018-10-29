@@ -856,6 +856,12 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(conpro2Package, STORAGE_PERMISSIONS, true, userId);
         }
 
+        // Weather client
+        PackageParser.Package weatherClientPackage = getSystemPackage("org.pixelexperience.weather.client");
+        if (weatherClientPackage != null && doesPackageSupportRuntimePermissions(weatherClientPackage)) {
+            grantRuntimePermissions(weatherClientPackage, LOCATION_PERMISSIONS, userId);
+        }
+
         if (mPermissionGrantedCallback != null) {
             mPermissionGrantedCallback.onDefaultRuntimePermissionsGranted(userId);
         }
