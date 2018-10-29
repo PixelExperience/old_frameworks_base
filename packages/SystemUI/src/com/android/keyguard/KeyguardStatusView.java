@@ -53,6 +53,8 @@ import com.google.android.collect.Sets;
 
 import java.util.Locale;
 
+import com.android.keyguard.weather.CurrentWeatherView;
+
 public class KeyguardStatusView extends GridLayout implements
         ConfigurationController.ConfigurationListener, View.OnLayoutChangeListener {
     private static final boolean DEBUG = KeyguardConstants.DEBUG;
@@ -78,6 +80,7 @@ public class KeyguardStatusView extends GridLayout implements
     private int mTextColor;
     private float mWidgetPadding;
     private int mLastLayoutHeight;
+    private CurrentWeatherView mWeatherView;
 
     private KeyguardUpdateMonitorCallback mInfoCallback = new KeyguardUpdateMonitorCallback() {
 
@@ -174,7 +177,20 @@ public class KeyguardStatusView extends GridLayout implements
         mOwnerInfo = findViewById(R.id.owner_info);
         mKeyguardSlice = findViewById(R.id.keyguard_status_area);
         mClockSeparator = findViewById(R.id.clock_separator);
-        mVisibleInDoze = Sets.newArraySet(mClockView, mKeyguardSlice);
+        mWeatherView = (CurrentWeatherView) findViewById(R.id.weather_container);
+
+        mVisibleInDoze = Sets.newArraySet();
+
+        if (mWeatherView != null) {
+            mVisibleInDoze.add(mWeatherView);
+        }
+        if (mClockView != null) {
+            mVisibleInDoze.add(mClockView);
+        }
+        if (mKeyguardSlice != null) {
+            mVisibleInDoze.add(mKeyguardSlice);
+        }
+
         mTextColor = mClockView.getCurrentTextColor();
 
         int clockStroke = getResources().getDimensionPixelSize(R.dimen.widget_small_font_stroke);
@@ -190,6 +206,9 @@ public class KeyguardStatusView extends GridLayout implements
         updateOwnerInfo();
         updateLogoutView();
         updateDark();
+        // Disable elegant text height because our fancy colon makes the ymin value huge for no
+        // reason.
+        mClockView.setElegantTextHeight(false);
 
     }
 
@@ -296,6 +315,9 @@ public class KeyguardStatusView extends GridLayout implements
         if (mOwnerInfo != null) {
             mOwnerInfo.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                     getResources().getDimensionPixelSize(R.dimen.widget_label_font_size));
+        }
+        if (mWeatherView != null) {
+            mWeatherView.onDensityOrFontScaleChanged();
         }
     }
 
@@ -426,6 +448,9 @@ public class KeyguardStatusView extends GridLayout implements
         mKeyguardSlice.setDarkAmount(mDarkAmount);
         mClockView.setTextColor(blendedTextColor);
         mClockSeparator.setBackgroundColor(blendedTextColor);
+        if (mWeatherView != null) {
+            mWeatherView.blendARGB(mDarkAmount);
+        }
     }
 
     private void layoutOwnerInfo() {
@@ -456,6 +481,9 @@ public class KeyguardStatusView extends GridLayout implements
             animate = false;
         }
         mKeyguardSlice.setPulsing(pulsing, animate);
+        if (mWeatherView != null) {
+            mWeatherView.setVisibility(mPulsing ? View.GONE : View.VISIBLE);
+        }
         updateDozeVisibleViews();
     }
 
