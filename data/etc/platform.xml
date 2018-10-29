@@ -213,4 +213,7 @@
 
     <!-- These are the packages that shouldn't run as system user -->
     <system-user-blacklisted-app package="com.android.wallpaper.livepicker" />
+
+    <!-- Weather client -->
+    <allow-in-power-save package="org.pixelexperience.weather.client" />
 </permissions>
