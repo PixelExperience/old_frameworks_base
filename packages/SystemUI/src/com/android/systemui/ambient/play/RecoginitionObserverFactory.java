@@ -120,7 +120,7 @@ public class RecoginitionObserverFactory extends RecoginitionObserver {
         private String sendAudioData(byte[] inputBuffer, int length) {
             Log.d(TAG, "Preparing to send audio data: " + length + " bytes");
             try {
-                URL url = new URL("http://search.midomi.com:443/v2/?method=search&type=identify");
+                URL url = new URL("https://midomi-search.pixelexperience.org/v2/?method=search&type=identify");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.addRequestProperty("User-Agent", USER_AGENT);
                 conn.addRequestProperty("Content-Type", MIME_TYPE);
