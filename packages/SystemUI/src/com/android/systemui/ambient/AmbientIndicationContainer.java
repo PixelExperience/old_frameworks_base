@@ -31,8 +31,8 @@ import com.android.systemui.AutoReinflateContainer;
 import com.android.systemui.doze.DozeReceiver;
 import com.android.systemui.statusbar.phone.StatusBar;
 
-import static android.provider.Settings.Secure.AMBIENT_RECOGNITION;
-import static android.provider.Settings.Secure.AMBIENT_RECOGNITION_KEYGUARD;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION_KEYGUARD;
 
 public class AmbientIndicationContainer extends AutoReinflateContainer implements DozeReceiver {
     private View mAmbientIndication;
@@ -68,9 +68,9 @@ public class AmbientIndicationContainer extends AutoReinflateContainer implement
     }
 
     private void updateAmbientIndicationForKeyguard() {
-        boolean recognitionEnabled = Settings.Secure.getInt(
+        boolean recognitionEnabled = Settings.System.getInt(
             mContext.getContentResolver(), AMBIENT_RECOGNITION, 0) != 0;
-        int recognitionKeyguard = Settings.Secure.getIntForUser(
+        int recognitionKeyguard = Settings.System.getIntForUser(
             mContext.getContentResolver(), AMBIENT_RECOGNITION_KEYGUARD, 1, 
             UserHandle.USER_CURRENT);
         if (!recognitionEnabled) return;
