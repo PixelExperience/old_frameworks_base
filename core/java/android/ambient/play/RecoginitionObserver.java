@@ -22,7 +22,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.provider.Settings;
 
-import static android.provider.Settings.Secure.AMBIENT_RECOGNITION;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION;
 
 /**
  * Class helping audio fingerprinting for recognition
@@ -59,7 +59,7 @@ public class RecoginitionObserver {
                 minBufSize);
 
         mManager = AmbientIndicationManager.getInstance(context);
-        mRecognitionEnabled = Settings.Secure.getInt(context.getContentResolver(),
+        mRecognitionEnabled = Settings.System.getInt(context.getContentResolver(),
                 AMBIENT_RECOGNITION, 0) != 0;
     }
 
