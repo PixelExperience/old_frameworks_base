@@ -21,8 +21,8 @@ import static android.app.StatusBarManager.WINDOW_STATE_SHOWING;
 import static android.app.StatusBarManager.windowStateToString;
 import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN_OR_SPLIT_SCREEN_SECONDARY;
 
-import static android.provider.Settings.Secure.AMBIENT_RECOGNITION;
-import static android.provider.Settings.Secure.AMBIENT_RECOGNITION_KEYGUARD;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION_KEYGUARD;
 
 import static com.android.systemui.keyguard.WakefulnessLifecycle.WAKEFULNESS_ASLEEP;
 import static com.android.systemui.keyguard.WakefulnessLifecycle.WAKEFULNESS_AWAKE;
@@ -4059,7 +4059,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     }
 
     private void updateAmbientIndicationForKeyguard() {
-        int recognitionKeyguard = Settings.Secure.getInt(
+        int recognitionKeyguard = Settings.System.getInt(
             mContext.getContentResolver(), AMBIENT_RECOGNITION_KEYGUARD, 1);
         if (!mRecognitionEnabled) return;
         if (mAmbientIndicationContainer != null && recognitionKeyguard != 0) {
@@ -4106,7 +4106,7 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     // Observer will trigger this function, no need to call it manually.
     private void initAmbientRecognition() {
-        mRecognitionEnabled = Settings.Secure.getInt(mContext.getContentResolver(),
+        mRecognitionEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 AMBIENT_RECOGNITION, 0) != 0;
     }
 
@@ -5733,11 +5733,11 @@ public class StatusBar extends SystemUI implements DemoMode,
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.Secure.getUriFor(
-                    Settings.Secure.AMBIENT_RECOGNITION),
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.AMBIENT_RECOGNITION),
                     false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.Secure.getUriFor(
-                    Settings.Secure.AMBIENT_RECOGNITION_KEYGUARD),
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.AMBIENT_RECOGNITION_KEYGUARD),
                     false, this, UserHandle.USER_ALL);
         }
 
