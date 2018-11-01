@@ -23,6 +23,7 @@ import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN_OR_SPLIT
 
 import static android.provider.Settings.System.AMBIENT_RECOGNITION;
 import static android.provider.Settings.System.AMBIENT_RECOGNITION_KEYGUARD;
+import static android.provider.Settings.System.AMBIENT_RECOGNITION_NOTIFICATION;
 
 import static com.android.systemui.keyguard.WakefulnessLifecycle.WAKEFULNESS_ASLEEP;
 import static com.android.systemui.keyguard.WakefulnessLifecycle.WAKEFULNESS_AWAKE;
@@ -653,6 +654,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     private AmbientIndicationNotification mAmbientNotification;
     private RecoginitionObserverFactory mRecognition;
     private boolean mRecognitionEnabled;
+    private boolean mRecognitionNotificationEnabled;
 
     /* Interval indicating when AP-Recogntion will run, that is 2 minutes and 30 seconds */
     private static final int AP_DURATION = 150000;
@@ -1167,7 +1169,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                     ((AmbientIndicationContainer) mAmbientIndicationContainer)
                                 .setIndication(observed.Song, observed.Artist);
                     mAmbientIndicationContainer.setVisibility(View.VISIBLE);
-                    mAmbientNotification.show(observed.Song, observed.Artist);
+                    if (mRecognitionNotificationEnabled){
+                        mAmbientNotification.show(observed.Song, observed.Artist);
+                    }
 
                     if (NO_MATCH_COUNT != 0)
                         NO_MATCH_COUNT = 0;
@@ -4109,6 +4113,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private void initAmbientRecognition() {
         mRecognitionEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 AMBIENT_RECOGNITION, 0) != 0;
+        mRecognitionNotificationEnabled = Settings.System.getInt(mContext.getContentResolver(),
+                AMBIENT_RECOGNITION_NOTIFICATION, 1) != 0;
     }
 
     private void doAmbientRecognition() {
@@ -5739,6 +5745,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.AMBIENT_RECOGNITION_KEYGUARD),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.AMBIENT_RECOGNITION_NOTIFICATION),
                     false, this, UserHandle.USER_ALL);
         }
 
