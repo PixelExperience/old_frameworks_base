@@ -78,11 +78,11 @@ public class AmbientIndicationContainer extends AutoReinflateContainer implement
             if (mSong != null && mArtist != null) {
                 mAmbientIndication.setVisibility(View.VISIBLE);
             } else {
-                mAmbientIndication.setVisibility(View.INVISIBLE);
+                mAmbientIndication.setVisibility(View.GONE);
             }
             return;
         }
-        mAmbientIndication.setVisibility(View.INVISIBLE);
+        mAmbientIndication.setVisibility(View.GONE);
     }
 
     @Override

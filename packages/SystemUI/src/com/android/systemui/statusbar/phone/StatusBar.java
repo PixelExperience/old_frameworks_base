@@ -642,6 +642,18 @@ public class StatusBar extends SystemUI implements DemoMode,
                     super.onStrongAuthStateChanged(userId);
                     mEntryManager.updateNotifications();
                 }
+
+                @Override
+                public void onKeyguardVisibilityChanged(boolean showing) {
+                    try {
+                        if (!showing){
+                            ambientClearingHandler.removeCallbacks(ambientClearingRunnable);
+                            ambientClearingHandler.post(ambientClearingRunnable);
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+
             };
 
     private NavigationBarFragment mNavigationBar;
@@ -672,6 +684,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     private static final Intent AP_INTENT = new Intent(AMBIENT_PLAY_INTENT);
     private static final int AP_REQUEST_CODE = 6969;
     private AlarmManager alarmManager;
+    private PendingIntent ambientPendingIntent;
     private BatteryManager mBatteryManager;
     private static int NO_MATCH_COUNT = 0;
 
@@ -773,6 +786,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         mWallpaperChangedReceiver.onReceive(mContext, null);
 
         mLockscreenUserManager.setUpWithPresenter(this, mEntryManager);
+        ambientPendingIntent = PendingIntent.getBroadcast(mContext, AP_REQUEST_CODE, AP_INTENT, 0);
         mContext.registerReceiver(ambientReceiver, AP_INTENT_FILTER);
         mAmbientSettingsObserver.observe();
         mAmbientSettingsObserver.update();
@@ -990,7 +1004,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         ambientClearingRunnable = new Runnable(){
             @Override
             public void run() {
-                mAmbientIndicationContainer.setVisibility(View.INVISIBLE);
+                mAmbientIndicationContainer.setVisibility(View.GONE);
                 ((AmbientIndicationContainer) mAmbientIndicationContainer).hideIndication();
             }
         };
@@ -1132,6 +1146,8 @@ public class StatusBar extends SystemUI implements DemoMode,
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(DevicePolicyManager.ACTION_SHOW_DEVICE_MONITORING_DIALOG);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
         filter.addAction("android.intent.action.SCREEN_CAMERA_GESTURE");
         filter.addAction("com.android.systemui.ACTION_DISMISS_KEYGUARD");
         context.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, filter, null, null);
@@ -1183,6 +1199,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                         // This too shall pass
                     }
                     doStopAmbientRecognition();
+                    scheduleAmbientPlayAlarm();
                 }
             });
         }
@@ -1194,7 +1211,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 public void run() {
                     try {
                         ambientClearingHandler.removeCallbacks(ambientClearingRunnable);
-                        ambientClearingHandler.postDelayed(ambientClearingRunnable, 0);
+                        ambientClearingHandler.post(ambientClearingRunnable);
                     } catch (Exception e) {
                         // This too shall pass
                     }
@@ -1203,6 +1220,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                         NO_MATCH_COUNT++;
 
                     doStopAmbientRecognition();
+                    scheduleAmbientPlayAlarm();
                 }
             });
         }
@@ -1214,7 +1232,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 public void run() {
                     try {
                         ambientClearingHandler.removeCallbacks(ambientClearingRunnable);
-                        ambientClearingHandler.postDelayed(ambientClearingRunnable, 0);
+                        ambientClearingHandler.post(ambientClearingRunnable);
                     } catch (Exception e) {
                         // This too shall pass
                     }
@@ -1223,6 +1241,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                         NO_MATCH_COUNT++;
 
                     doStopAmbientRecognition();
+                    scheduleAmbientPlayAlarm();
                 }
             });
         }
@@ -3040,7 +3059,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         pw.println(BarTransitions.modeToString(transitions.getMode()));
     }
 
-    private int isNetworkAvailable() {
+    private int getNetworkStatus() {
         final ConnectivityManager connectivityManager 
               = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -3267,6 +3286,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                     Intent launchIntent = (Intent) intent.getParcelableExtra("launch");
                     startActivityDismissingKeyguard(launchIntent, true, true);
                 }
+            } else if (Intent.ACTION_TIME_CHANGED.equals(intent.getAction()) || Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
+                scheduleAmbientPlayAlarm();
             }
         }
     };
@@ -3299,10 +3320,9 @@ public class StatusBar extends SystemUI implements DemoMode,
     private final BroadcastReceiver ambientReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int whichNetwork = isNetworkAvailable();
 
             // Only start recording audio if we have internet connectivity.
-            if (whichNetwork != -1) {
+            if (getNetworkStatus() != -1) {
                 new Thread() {
                     @Override
                     public void run() {
@@ -3316,9 +3336,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                         }
                     }
                 }.start();
+            }else{
+                scheduleAmbientPlayAlarm();
             }
-            // Schedule it for the next time.
-            scheduleAmbientPlayAlarm(whichNetwork);
         }
     };
 
@@ -4067,7 +4087,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         int recognitionKeyguard = Settings.System.getInt(
             mContext.getContentResolver(), AMBIENT_RECOGNITION_KEYGUARD, 1);
         if (!mRecognitionEnabled) return;
-        if (mAmbientIndicationContainer != null && recognitionKeyguard != 0) {
+        if (mAmbientIndicationContainer != null && (recognitionKeyguard != 0 || isPulsing())) {
             mAmbientIndicationContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -4091,7 +4111,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                         fromShadeLocked);
             }
             if (mAmbientIndicationContainer != null) {
-                mAmbientIndicationContainer.setVisibility(View.INVISIBLE);
+                mAmbientIndicationContainer.setVisibility(View.GONE);
             }
         }
         mNotificationPanel.setBarState(mState, mKeyguardFadingAway, goingToFullShade);
@@ -4132,7 +4152,11 @@ public class StatusBar extends SystemUI implements DemoMode,
         mRecognition = null;
     }
 
-    private void scheduleAmbientPlayAlarm(int networkType) {
+    private void scheduleAmbientPlayAlarm() {
+        int networkType = getNetworkStatus();
+        alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(ambientPendingIntent);
+
         // Check user's pref
         if (!mRecognitionEnabled) return;
 
@@ -4147,7 +4171,7 @@ public class StatusBar extends SystemUI implements DemoMode,
          *  - If device is on WiFi then let scan duration be 2 minutes and 30 seconds, or
          *  - If device is on Mobile Data or anything else then let's set it to 3 minutes.
          */
-        
+
         if (mBatteryManager.isCharging())
             duration = 120000;
         else if (NO_MATCH_COUNT >= 20)
@@ -4157,9 +4181,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         else if (networkType == 1 || networkType == 2)
             duration = 180000;
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, AP_REQUEST_CODE, AP_INTENT, 0);
-        alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, pendingIntent);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, ambientPendingIntent);
     }
 
     /**
@@ -5759,7 +5781,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         public void update() {
             initAmbientRecognition();
             updateAmbientIndicationForKeyguard();
-            scheduleAmbientPlayAlarm(isNetworkAvailable());
+            scheduleAmbientPlayAlarm();
         }
     }
 
