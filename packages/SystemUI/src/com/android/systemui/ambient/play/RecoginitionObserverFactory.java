@@ -30,6 +30,8 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 /**
  * Class helping audio fingerprinting for recognition
  */
@@ -165,9 +167,9 @@ public class RecoginitionObserverFactory extends RecoginitionObserver {
                 Matcher match = data_re.matcher(xml.replaceAll("\n", ""));
 
                 if (match.find()) {
-                    observed.Artist = match.group(1);
-                    observed.Album = match.group(2);
-                    observed.Song = match.group(3);
+                    observed.Artist = StringEscapeUtils.unescapeHtml(match.group(1));
+                    observed.Album = StringEscapeUtils.unescapeHtml(match.group(2));
+                    observed.Song = StringEscapeUtils.unescapeHtml(match.group(3));
                     observed.ArtworkUrl = match.group(4);
                     Log.d(TAG, "Got a match! " + observed);
                 } else {

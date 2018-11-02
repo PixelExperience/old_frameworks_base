@@ -687,6 +687,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private PendingIntent ambientPendingIntent;
     private BatteryManager mBatteryManager;
     private static int NO_MATCH_COUNT = 0;
+    private static int lastAlarmDuration = 0;
+    private static long lastAmbientIndicationManagerEvent = 0;
 
     @Override
     public void start() {
@@ -1144,6 +1146,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         // receive broadcasts
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(DevicePolicyManager.ACTION_SHOW_DEVICE_MONITORING_DIALOG);
         filter.addAction(Intent.ACTION_TIME_CHANGED);
@@ -1198,6 +1201,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     } catch (Exception e) {
                         // This too shall pass
                     }
+                    lastAmbientIndicationManagerEvent = System.currentTimeMillis();
                     doStopAmbientRecognition();
                     scheduleAmbientPlayAlarm();
                 }
@@ -1219,6 +1223,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     if (!mBatteryManager.isCharging())
                         NO_MATCH_COUNT++;
 
+                    lastAmbientIndicationManagerEvent = System.currentTimeMillis();
                     doStopAmbientRecognition();
                     scheduleAmbientPlayAlarm();
                 }
@@ -1240,6 +1245,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     if (!mBatteryManager.isCharging())
                         NO_MATCH_COUNT++;
 
+                    lastAmbientIndicationManagerEvent = System.currentTimeMillis();
                     doStopAmbientRecognition();
                     scheduleAmbientPlayAlarm();
                 }
@@ -3263,9 +3269,13 @@ public class StatusBar extends SystemUI implements DemoMode,
                     animateCollapsePanels(flags);
                 }
             }
+            else if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                shouldForceAmbientPlayUpdating();
+            }
             else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 finishBarAnimations();
                 resetUserExpandedStates();
+                shouldForceAmbientPlayUpdating();
             }
             else if (DevicePolicyManager.ACTION_SHOW_DEVICE_MONITORING_DIALOG.equals(action)) {
                 mQSPanel.showDeviceMonitoringDialog();
@@ -3287,6 +3297,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     startActivityDismissingKeyguard(launchIntent, true, true);
                 }
             } else if (Intent.ACTION_TIME_CHANGED.equals(intent.getAction()) || Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
+                lastAmbientIndicationManagerEvent = 0;
                 scheduleAmbientPlayAlarm();
             }
         }
@@ -3320,27 +3331,30 @@ public class StatusBar extends SystemUI implements DemoMode,
     private final BroadcastReceiver ambientReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            // Only start recording audio if we have internet connectivity.
-            if (getNetworkStatus() != -1) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                        try {
-                            doAmbientRecognition();
-                            Thread.currentThread().sleep(AMBIENT_RECOGNITION_INTERVAL_MAX);
-                            // Stop recording, process audio and post result.
-                            doStopAmbientRecognition();
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                }.start();
-            }else{
-                scheduleAmbientPlayAlarm();
-            }
+            onAmbientRecognitionBroadcastReceived();
         }
     };
+
+    private void onAmbientRecognitionBroadcastReceived(){
+        // Only start recording audio if we have internet connectivity.
+        if (getNetworkStatus() != -1) {
+            new Thread() {
+                @Override
+                public void run() {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                    try {
+                        doAmbientRecognition();
+                        Thread.currentThread().sleep(AMBIENT_RECOGNITION_INTERVAL_MAX);
+                        // Stop recording, process audio and post result.
+                        doStopAmbientRecognition();
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }.start();
+        }else{
+            scheduleAmbientPlayAlarm();
+        }
+    }
 
     public void resetUserExpandedStates() {
         ArrayList<Entry> activeNotifications = mEntryManager.getNotificationData()
@@ -4181,7 +4195,15 @@ public class StatusBar extends SystemUI implements DemoMode,
         else if (networkType == 1 || networkType == 2)
             duration = 180000;
 
+        lastAlarmDuration = duration;
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, ambientPendingIntent);
+    }
+
+    private void shouldForceAmbientPlayUpdating() {
+        if (System.currentTimeMillis() - lastAmbientIndicationManagerEvent > lastAlarmDuration){
+            scheduleAmbientPlayAlarm();
+            onAmbientRecognitionBroadcastReceived();
+        }
     }
 
     /**
@@ -5175,6 +5197,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 }
 
                 private void setPulsing(boolean pulsing) {
+                    shouldForceAmbientPlayUpdating();
                     mKeyguardViewMediator.setPulsing(pulsing);
                     mNotificationPanel.setPulsing(pulsing);
                     mVisualStabilityManager.setPulsing(pulsing);
