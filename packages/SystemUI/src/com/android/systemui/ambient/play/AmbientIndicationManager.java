@@ -42,6 +42,8 @@ import java.util.List;
 
 import com.android.systemui.R;
 
+import com.android.internal.util.custom.ambient.play.AmbientPlayHistoryManager;
+
 public class AmbientIndicationManager {
 
     private static final String TAG = "AmbientIndicationManager";
@@ -260,9 +262,15 @@ public class AmbientIndicationManager {
         isRecognitionObserverBusy = false;
         lastUpdated = System.currentTimeMillis();
         NO_MATCH_COUNT = 0;
+        if (!isRecognitionEnabled) {
+            dispatchRecognitionNoResult();
+            return;
+        }
         if (isRecognitionNotificationEnabled) {
             showNotification(observed.Song, observed.Artist);
         }
+        AmbientPlayHistoryManager.addSong(observed.Song, observed.Artist, mContext);
+        AmbientPlayHistoryManager.sendMatchBroadcast(mContext);
         for (AmbientIndicationManagerCallback cb : mCallbacks) {
             try {
                 cb.onRecognitionResult(observed);
