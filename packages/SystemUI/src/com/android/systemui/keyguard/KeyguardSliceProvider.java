@@ -200,6 +200,10 @@ public class KeyguardSliceProvider extends SliceProvider implements
         if (!WeatherClient.isAvailable(getContext()) || mWeatherInfo == null || mWeatherInfo.getStatus() != WeatherClient.WEATHER_UPDATE_SUCCESS) {
             return;
         }
+        if (mWeatherInfo.getWeatherConditionImage() == 0){
+            Log.d("WeatherClient", "addWeather: Not adding because weather condition image is unknown";
+            return;
+        }
         int temperatureMetric = mWeatherInfo.getTemperature(true);
         int temperatureImperial = mWeatherInfo.getTemperature(false);
         String temperatureText = useMetricUnit ?
@@ -214,9 +218,6 @@ public class KeyguardSliceProvider extends SliceProvider implements
 
     @Override
     public void onWeatherUpdated(WeatherClient.WeatherInfo weatherInfo) {
-        if (weatherInfo.getStatus() == WeatherClient.WEATHER_UPDATE_RUNNING){
-            return;
-        }
         mWeatherInfo = weatherInfo;
         mContentResolver.notifyChange(mSliceUri, null /* observer */);
     }
