@@ -60,12 +60,6 @@ public class GestureLauncherService extends SystemService {
     private static final boolean DBG_CAMERA_LIFT = false;
     private static final String TAG = "GestureLauncherService";
 
-     /**
-     * Minimum time in milliseconds between power button presses so it will be considered
-     * as a camera launch. To avoid false triggers.
-     */
-    private static final long CAMERA_POWER_DOUBLE_TAP_MIN_TIME_MS = 75;
-
     /**
      * Time in milliseconds in which the power button must be pressed twice so it will be considered
      * as a camera launch.
@@ -365,11 +359,11 @@ public class GestureLauncherService extends SystemService {
         boolean launched = false;
         boolean intercept = false;
         long powerTapInterval;
+        int powerDoubleTapMinTime = mContext.getResources().getInteger(com.android.internal.R.integer.config_cameraPowerDoubleTapMinTime);
         synchronized (this) {
             powerTapInterval = event.getEventTime() - mLastPowerDown;
             if (mCameraDoubleTapPowerEnabled
-                    && powerTapInterval > CAMERA_POWER_DOUBLE_TAP_MIN_TIME_MS
-                    && powerTapInterval < CAMERA_POWER_DOUBLE_TAP_MAX_TIME_MS) {
+                    && powerTapInterval < CAMERA_POWER_DOUBLE_TAP_MAX_TIME_MS && (powerDoubleTapMinTime == 0 ? true : powerTapInterval > powerDoubleTapMinTime)) {
                 launched = true;
                 intercept = interactive;
                 mPowerButtonConsecutiveTaps++;
