@@ -509,7 +509,7 @@ public class NavigationBarView extends FrameLayout implements PluginListener<Nav
 
     public KeyButtonDrawable getHomeDrawable(Context lightContext, Context darkContext) {
         final boolean quickStepEnabled = mOverviewProxyService.shouldShowSwipeUpUI();
-        KeyButtonDrawable drawable = getDrawable(lightContext, darkContext, quickStepEnabled ? 
+        KeyButtonDrawable drawable = getDrawable(darkContext, lightContext, quickStepEnabled ? 
                                                     R.drawable.ic_sysbar_home_quick_step : 
                                                     R.drawable.ic_sysbar_home);
         orientHomeButton(drawable);
