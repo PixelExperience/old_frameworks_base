@@ -22,7 +22,9 @@ import android.app.ActivityManager;
 import android.app.ActivityManagerInternal;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.hardware.health.V1_0.HealthInfo;
 import android.hardware.health.V2_0.IHealth;
@@ -207,6 +209,20 @@ public final class BatteryService extends SystemService {
 
     private MetricsLogger mMetricsLogger;
 
+    public static String ACTION_FORCE_BATTERY_LED_UPDATE = "android.intent.action.FORCE_BATTERY_LED_UPDATE";
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) {
+                return;
+            }
+            if (ACTION_FORCE_BATTERY_LED_UPDATE.equals(intent.getAction())) {
+                updateLed();
+            }
+        }
+    };
+
     public BatteryService(Context context) {
         super(context);
 
@@ -248,6 +264,10 @@ public final class BatteryService extends SystemService {
             invalidChargerObserver.startObserving(
                     "DEVPATH=/devices/virtual/switch/invalid_charger");
         }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_FORCE_BATTERY_LED_UPDATE);
+        mContext.registerReceiver(broadcastReceiver, filter);
     }
 
     @Override
