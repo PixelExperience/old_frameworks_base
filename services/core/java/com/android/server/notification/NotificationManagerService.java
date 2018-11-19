@@ -198,6 +198,7 @@ import com.android.internal.util.DumpUtils;
 import com.android.internal.util.FastXmlSerializer;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.XmlUtils;
+import com.android.server.BatteryService;
 import com.android.server.DeviceIdleController;
 import com.android.server.EventLogTags;
 import com.android.server.LocalServices;
@@ -1136,6 +1137,8 @@ public class NotificationManagerService extends SystemService {
             } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
                 // turn off LED when user passes through lock screen
                 mNotificationLight.turnOff();
+                android.util.Log.d(TAG, "ACTION_USER_PRESENT: Update battery led");
+                updateBatteryLed();
             } else if (action.equals(Intent.ACTION_USER_SWITCHED)) {
                 final int user = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
                 // reload per-user settings
@@ -5994,6 +5997,8 @@ public class NotificationManagerService extends SystemService {
         // Don't flash while we are in a call or screen is on
         if (ledNotification == null || mInCall || mScreenOn) {
             mNotificationLight.turnOff();
+            android.util.Log.d(TAG, "screen off: Update battery led");
+            updateBatteryLed();
         } else {
             NotificationRecord.Light light = ledNotification.getLight();
             if (light != null && mNotificationPulseEnabled) {
@@ -6002,6 +6007,10 @@ public class NotificationManagerService extends SystemService {
                         light.onMs, light.offMs);
             }
         }
+    }
+
+    private void updateBatteryLed(){
+        getContext().sendBroadcastAsUser(new Intent(BatteryService.ACTION_FORCE_BATTERY_LED_UPDATE), UserHandle.ALL, null);
     }
 
     @GuardedBy("mNotificationLock")

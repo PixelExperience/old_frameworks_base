@@ -607,6 +607,9 @@
     <!-- Ambient Indication -->
     <protected-broadcast android:name="com.android.internal.util.custom.ambient.play.AMBIENT_PLAY_SONG_MATCH" />
 
+    <!-- Battery led -->
+    <protected-broadcast android:name="android.intent.action.FORCE_BATTERY_LED_UPDATE" />
+
     <!-- ====================================================================== -->
     <!--                          RUNTIME PERMISSIONS                           -->
     <!-- ====================================================================== -->
