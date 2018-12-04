@@ -237,7 +237,7 @@ public class OpaLayout extends FrameLayout implements ButtonInterface {
         mHalo = (ImageView) findViewById(R.id.halo);
         mHome = (KeyButtonView) findViewById(R.id.home_button);
         Context lightContext = new ContextThemeWrapper(getContext(), R.style.DualToneLightTheme);
-        mHalo.setImageDrawable(KeyButtonDrawable.create(lightContext, lightContext.getDrawable(R.drawable.halo), new ContextThemeWrapper(getContext(), R.style.DualToneDarkTheme).getDrawable(R.drawable.halo), false));
+        mHalo.setImageDrawable(KeyButtonDrawable.create(lightContext, lightContext.getDrawable(R.drawable.halo), new ContextThemeWrapper(getContext(), R.style.DualToneDarkTheme).getDrawable(R.drawable.halo), true));
         mHaloDiameter = mResources.getDimensionPixelSize(R.dimen.halo_diameter);
         Paint cutoutPaint = new Paint();
         cutoutPaint.setXfermode(new PorterDuffXfermode(Mode.DST_OUT));

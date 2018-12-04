@@ -15,7 +15,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- OPA -->
-    <dimen name="halo_diameter">18.0dip</dimen>
+    <dimen name="halo_diameter">20.0dip</dimen>
     <dimen name="halo_inner_radius">8.0dip</dimen>
     <dimen name="halo_thickness">1.0dip</dimen>
     <dimen name="opa_diamond_translation">16.0dip</dimen>
