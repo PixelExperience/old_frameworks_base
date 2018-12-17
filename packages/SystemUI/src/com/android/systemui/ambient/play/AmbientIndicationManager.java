@@ -61,7 +61,7 @@ public class AmbientIndicationManager {
     private int lastAlarmInterval = 0;
     private long lastUpdated = 0;
     private boolean isRecognitionObserverBusy = false;
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
 
     private List<AmbientIndicationManagerCallback> mCallbacks;
 
@@ -100,6 +100,7 @@ public class AmbientIndicationManager {
         } else if (networkStatus == 1 || networkStatus == 2) {
             duration = 180000;
         }
+        duration = 10000;
         lastAlarmInterval = duration;
         mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, pendingIntent);
     }
