@@ -61,7 +61,7 @@ public class AmbientIndicationManager {
     private int lastAlarmInterval = 0;
     private long lastUpdated = 0;
     private boolean isRecognitionObserverBusy = false;
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
 
     private List<AmbientIndicationManagerCallback> mCallbacks;
 
