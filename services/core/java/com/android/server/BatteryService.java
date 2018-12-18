@@ -292,7 +292,7 @@ public final class BatteryService extends SystemService {
         }
     }
 
-    private synchronized void updateLed() {
+    public synchronized void updateLed() {
         mLed.updateLightsLocked();
     }
 
