@@ -198,6 +198,7 @@ import com.android.internal.util.DumpUtils;
 import com.android.internal.util.FastXmlSerializer;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.XmlUtils;
+import com.android.server.BatteryService;
 import com.android.server.DeviceIdleController;
 import com.android.server.EventLogTags;
 import com.android.server.LocalServices;
@@ -409,6 +410,8 @@ public class NotificationManagerService extends SystemService {
 
     private MetricsLogger mMetricsLogger;
     private Predicate<String> mAllowedManagedServicePackages;
+
+    private BatteryService mBatteryService;
 
     private static class Archive {
         final int mBufferSize;
@@ -1136,6 +1139,7 @@ public class NotificationManagerService extends SystemService {
             } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
                 // turn off LED when user passes through lock screen
                 mNotificationLight.turnOff();
+                mBatteryService.updateLed();
             } else if (action.equals(Intent.ACTION_USER_SWITCHED)) {
                 final int user = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
                 // reload per-user settings
@@ -1240,6 +1244,10 @@ public class NotificationManagerService extends SystemService {
     public NotificationManagerService(Context context) {
         super(context);
         Notification.processWhitelistToken = WHITELIST_TOKEN;
+    }
+
+    public void setBatteryService(BatteryService batteryService) {
+        mBatteryService = batteryService;
     }
 
     // TODO - replace these methods with a single VisibleForTesting constructor
@@ -5994,6 +6002,7 @@ public class NotificationManagerService extends SystemService {
         // Don't flash while we are in a call or screen is on
         if (ledNotification == null || mInCall || mScreenOn) {
             mNotificationLight.turnOff();
+            mBatteryService.updateLed();
         } else {
             NotificationRecord.Light light = ledNotification.getLight();
             if (light != null && mNotificationPulseEnabled) {

@@ -265,6 +265,8 @@ public final class SystemServer {
     private PackageManager mPackageManager;
     private ContentResolver mContentResolver;
     private EntropyMixer mEntropyMixer;
+    private BatteryService mBatteryService;
+    private NotificationManagerService mNotificationManagerService;
 
     private boolean mOnlyCore;
     private boolean mFirstBoot;
@@ -709,7 +711,7 @@ public final class SystemServer {
     private void startCoreServices() {
         traceBeginAndSlog("StartBatteryService");
         // Tracks the battery level.  Requires LightService.
-        mSystemServiceManager.startService(BatteryService.class);
+        mBatteryService = mSystemServiceManager.startService(BatteryService.class);
         traceEnd();
 
         // Tracks application usage stats.
@@ -1225,7 +1227,8 @@ public final class SystemServer {
             traceEnd();
 
             traceBeginAndSlog("StartNotificationManager");
-            mSystemServiceManager.startService(NotificationManagerService.class);
+            mNotificationManagerService = mSystemServiceManager.startService(NotificationManagerService.class);
+            mNotificationManagerService.setBatteryService(mBatteryService);
             SystemNotificationChannels.createAll(context);
             notification = INotificationManager.Stub.asInterface(
                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
