@@ -50,7 +50,6 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
     private RecorderThread mRecThread;
     private boolean isRecording = false;
     private AmbientIndicationManager mManager;
-    private boolean isRecognitionEnabled;
     private Context mContext;
 
     RecognitionObserver(Context context, AmbientIndicationManager manager) {
@@ -77,8 +76,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
     @Override
     public void onSettingsChanged(String key, boolean newValue) {
         if (key.equals(Settings.System.AMBIENT_RECOGNITION)) {
-            isRecognitionEnabled = newValue;
-            if (!isRecognitionEnabled) {
+            if (!mManager.isRecognitionEnabled()) {
                 if (mManager.DEBUG)
                     Log.d(TAG, "Recognition disabled, stopping all and triggering dispatchRecognitionNoResult");
                 stopRecording();
@@ -101,7 +99,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
             while (isRecording && mBuffer != null) {
                 int read = 0;
                 synchronized (this) {
-                    if (!isRecognitionEnabled) {
+                    if (!mManager.isRecognitionEnabled()) {
                         break;
                     }
                     if (mRecorder != null) {
@@ -118,7 +116,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
                             System.arraycopy(mBuffer, 0, buffCopy, 0, buffCopy.length);
                         }
                     }
-                    if (!isRecognitionEnabled) {
+                    if (!mManager.isRecognitionEnabled()) {
                         break;
                     }
                 }
@@ -131,7 +129,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
         }
 
         private void tryMatchCurrentBuffer() {
-            if (!isRecognitionEnabled) {
+            if (!mManager.isRecognitionEnabled()) {
                 stopRecording();
                 return;
             }
@@ -167,7 +165,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
             stopRecording();
             // If the recording is still active and we have no match, don't do anything. Otherwise,
             // report the result.
-            if (!isRecognitionEnabled || isNullResult(observed)) {
+            if (!mManager.isRecognitionEnabled() || isNullResult(observed)) {
                 if (mManager.DEBUG) Log.d(TAG, "Reporting onNoMatch");
                 mManager.dispatchRecognitionNoResult();
             } else {
@@ -179,7 +177,7 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
     }
 
     void startRecording() {
-        if (!isRecognitionEnabled || isRecording) {
+        if (!mManager.isRecognitionEnabled() || isRecording) {
             return;
         }
         isRecording = true;
