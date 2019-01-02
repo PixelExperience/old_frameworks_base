@@ -27347,4 +27347,12 @@ public class ActivityManagerService extends IActivityManager.Stub
             }
         }
     }
+
+    public void sendActivePackageChangedBroadcast(String packageName) {
+        Intent intent = new Intent("android.intent.action.ACTIVE_PACKAGE_CHANGED");
+        intent.putExtra("package_name", packageName);
+        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        mContext.sendBroadcastAsUser(intent, UserHandle.SYSTEM);
+    }
+
 }
