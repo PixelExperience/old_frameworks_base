@@ -514,6 +514,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.android.internal.util.custom.thermal.ThermalController;
+
 public class ActivityManagerService extends IActivityManager.Stub
         implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
 
@@ -27347,4 +27349,12 @@ public class ActivityManagerService extends IActivityManager.Stub
             }
         }
     }
+
+    public void sendActivePackageChangedBroadcast(String packageName) {
+        Intent intent = new Intent(ThermalController.ACTIVE_PACKAGE_CHANGED_ACTION);
+        intent.putExtra(ThermalController.ACTIVE_PACKAGE_CHANGED_EXTRA, packageName);
+        intent.setFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        mContext.sendBroadcastAsUser(intent, UserHandle.SYSTEM);
+    }
+
 }
