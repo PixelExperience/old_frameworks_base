@@ -59,6 +59,8 @@ import com.android.systemui.statusbar.phone.StatusBarKeyguardViewManager;
 import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
 import com.android.systemui.statusbar.policy.SmartReplyConstants;
 
+import com.google.android.systemui.LiveWallpaperScrimController;
+
 import java.util.function.Consumer;
 
 /**
@@ -109,7 +111,7 @@ public class SystemUIFactory {
             TriConsumer<ScrimState, Float, GradientColors> scrimStateListener,
             Consumer<Integer> scrimVisibleListener, DozeParameters dozeParameters,
             AlarmManager alarmManager) {
-        return new ScrimController(scrimBehind, scrimInFront, scrimStateListener,
+        return new LiveWallpaperScrimController(scrimBehind, scrimInFront, lockscreenWallpaper, scrimStateListener,
                 scrimVisibleListener, dozeParameters, alarmManager);
     }
 
