@@ -301,8 +301,8 @@ final class UiModeManagerService extends SystemService {
                 if (runningTasks != null && runningTasks.size() > 0){
                     String packageName = runningTasks.get(0).topActivity.getPackageName();
                     if (packageName.equals("com.google.android.apps.messaging")) {
-                        Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage("com.google.android.apps.messaging");
-                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(packageName);
+                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         getContext().startActivity(launchIntent);
                         return;
                     }
