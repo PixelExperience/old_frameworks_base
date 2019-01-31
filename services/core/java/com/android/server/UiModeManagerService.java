@@ -302,10 +302,10 @@ final class UiModeManagerService extends SystemService {
                 if (runningTasks != null && runningTasks.size() > 0){
                     String packageName = runningTasks.get(0).topActivity.getPackageName();
                     if (packageName.equals("com.google.android.apps.messaging") && messagingAppNightModeState != mode) {
-                        if (messagingAppNightModeState == -1){ // System booted, store the desired value and don't restart app to prevent flickering
+                        /*if (messagingAppNightModeState == -1){ // System booted, store the desired value and don't restart app to prevent flickering
                             messagingAppNightModeState = mode;
                             return;
-                        }
+                        }*/
                         messagingAppNightModeState = mode;
                         Intent launchIntent = getContext().getPackageManager().getLaunchIntentForPackage(packageName);
                         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
