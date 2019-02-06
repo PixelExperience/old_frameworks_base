@@ -194,7 +194,7 @@ please see styles_device_defaults.xml.
 
     <style name="TextAppearance.Material.Title">
         <item name="textSize">@dimen/text_size_title_material</item>
-        <item name="fontFamily">@string/font_family_title_material</item>
+        <item name="fontFamily">@string/config_headlineFontFamilyMedium</item>
         <item name="textColor">?attr/textColorPrimary</item>
     </style>
 
@@ -250,8 +250,8 @@ please see styles_device_defaults.xml.
 
     <style name="TextAppearance.Material.Button">
         <item name="textSize">@dimen/text_size_button_material</item>
-        <item name="fontFamily">@string/font_family_button_material</item>
-        <item name="textAllCaps">true</item>
+        <item name="fontFamily">@string/config_headlineFontFamilyMedium</item>
+        <item name="textAllCaps">@bool/config_buttonTextAllCaps</item>
         <item name="textColor">?attr/textColorPrimary</item>
     </style>
 
