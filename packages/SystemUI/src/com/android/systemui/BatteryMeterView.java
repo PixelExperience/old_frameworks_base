@@ -278,8 +278,10 @@ public class BatteryMeterView extends LinearLayout implements
                     mBatteryPercentView = null;
                 }
                 mDrawable.setShowPercent(true);
+                scaleBatteryMeterViews(true);
             }else if (!showing) {
                 mDrawable.setShowPercent(false);
+                scaleBatteryMeterViews();
                 mBatteryPercentView = loadPercentView();
                 if (mTextColor != 0) mBatteryPercentView.setTextColor(mTextColor);
                 updatePercentText();
@@ -294,6 +296,7 @@ public class BatteryMeterView extends LinearLayout implements
                 mBatteryPercentView = null;
             }
             mDrawable.setShowPercent(false);
+            scaleBatteryMeterViews();
         }
     }
 
@@ -315,6 +318,10 @@ public class BatteryMeterView extends LinearLayout implements
      * Looks up the scale factor for status bar icons and scales the battery view by that amount.
      */
     private void scaleBatteryMeterViews() {
+        scaleBatteryMeterViews(false);
+    }
+
+    private void scaleBatteryMeterViews(boolean percentageInsideIcon) {
         Resources res = getContext().getResources();
         TypedValue typedValue = new TypedValue();
 
@@ -322,11 +329,12 @@ public class BatteryMeterView extends LinearLayout implements
         float iconScaleFactor = typedValue.getFloat();
 
         int batteryHeight = res.getDimensionPixelSize(R.dimen.status_bar_battery_icon_height);
-        int batteryWidth = res.getDimensionPixelSize(R.dimen.status_bar_battery_icon_width);
+        int batteryWidth = percentageInsideIcon ? res.getDimensionPixelSize(R.dimen.status_bar_battery_icon_width_percentage_inside) : 
+                            (res.getDimensionPixelSize(R.dimen.status_bar_battery_icon_width) * iconScaleFactor);
         int marginBottom = res.getDimensionPixelSize(R.dimen.battery_margin_bottom);
 
         LinearLayout.LayoutParams scaledLayoutParams = new LinearLayout.LayoutParams(
-                (int) (batteryWidth * iconScaleFactor), (int) (batteryHeight * iconScaleFactor));
+                (int) (batteryWidth), (int) (batteryHeight * iconScaleFactor));
         scaledLayoutParams.setMargins(0, 0, 0, marginBottom);
 
         mBatteryIconView.setLayoutParams(scaledLayoutParams);
