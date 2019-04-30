@@ -633,6 +633,8 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
 
     private boolean mDisplayCutoutHidden;
 
+    private String mAccentPackageName;
+
     private final KeyguardUpdateMonitorCallback mUpdateCallback =
             new KeyguardUpdateMonitorCallback() {
                 @Override
@@ -4186,6 +4188,15 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
             mUiOffloadThread.submit(() -> {
                 swapWhiteBlackAccent();
             });
+            if (mAccentPackageName != null && !mAccentPackageName.equals("0")){
+                mUiOffloadThread.submit(() -> {
+                    try {
+                        mOverlayManager.setEnabled(mAccentPackageName,
+                            mUserManager.isAdminUser(), mLockscreenUserManager.getCurrentUserId());
+                    }catch (RemoteException e){
+                    }
+                });
+            }
         }
 
         // Lock wallpaper defines the color of the majority of the views, hence we'll use it
@@ -5378,6 +5389,9 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.DISPLAY_CUTOUT_HIDDEN),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.THEME_ACCENT),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
@@ -5388,13 +5402,22 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
                 updateNavigationBar();
             }else if (uri.equals(Settings.System.getUriFor(Settings.System.DISPLAY_CUTOUT_HIDDEN))) {
                 updateCutoutOverlay();
+            }else if (uri.equals(Settings.System.getUriFor(Settings.System.THEME_ACCENT))) {
+                updateAccentPackageName();
             }
         }
 
         public void update() {
             updateNavigationBar();
             updateCutoutOverlay();
+            updateAccentPackageName();
         }
+    }
+
+    private void updateAccentPackageName() {
+        mAccentPackageName = Settings.System.getStringForUser(
+            mContext.getContentResolver(), Settings.System.THEME_ACCENT,
+            UserHandle.USER_CURRENT);
     }
 
     private void updateNavigationBar() {
