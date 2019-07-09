@@ -1139,7 +1139,7 @@ public class UserManager {
      * @return whether the device supports multiple users.
      */
     public static boolean supportsMultipleUsers() {
-        return false;
+        return getMaxSupportedUsers() > 1 && SystemProperties.getBoolean("fw.show_multiuserui", false);;
         /*return getMaxSupportedUsers() > 1
                 && SystemProperties.getBoolean("fw.show_multiuserui",
                 Resources.getSystem().getBoolean(R.bool.config_enableMultiUserUI));*/
@@ -2634,7 +2634,7 @@ public class UserManager {
      * @return a value greater than or equal to 1
      */
     public static int getMaxSupportedUsers() {
-        return 1;
+        return SystemProperties.getInt("fw.max_users", 1);
         /*
         // Don't allow multiple users on certain builds
         if (android.os.Build.ID.startsWith("JVP")) return 1;
