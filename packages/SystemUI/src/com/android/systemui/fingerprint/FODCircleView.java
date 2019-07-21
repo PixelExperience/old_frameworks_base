@@ -19,15 +19,18 @@ package com.android.systemui.fingerprint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.view.Display;
 import android.view.Gravity;
@@ -193,6 +196,10 @@ public class FODCircleView extends ImageView implements OnTouchListener {
         }
     };
 
+    private CutoutSettingsObserver mCutoutSettingsObserver =
+            new CutoutSettingsObserver(new Handler(Looper.getMainLooper()));
+    private boolean mDisplayCutoutHidden;
+
     public FODCircleView(Context context) {
         super(context);
 
@@ -233,6 +240,8 @@ public class FODCircleView extends ImageView implements OnTouchListener {
 
         mUpdateMonitor = KeyguardUpdateMonitor.getInstance(context);
         mUpdateMonitor.registerCallback(mMonitorCallback);
+        updateCutout();
+        mCutoutSettingsObserver.observe();
     }
 
     @Override
@@ -372,21 +381,29 @@ public class FODCircleView extends ImageView implements OnTouchListener {
         defaultDisplay.getRealSize(size);
 
         int rotation = defaultDisplay.getRotation();
+        int mY_ = mY;
+
+        if (mDisplayCutoutHidden){
+            mY_ += getContext().getResources().getDimensionPixelSize(
+                    com.android.internal.R.dimen.status_bar_height_portrait);
+            // Maybe use -=
+        }
+
         switch (rotation) {
             case Surface.ROTATION_0:
                 mParams.x = mX;
-                mParams.y = mY;
+                mParams.y = mY_;
                 break;
             case Surface.ROTATION_90:
-                mParams.x = mY;
+                mParams.x = mY_;
                 mParams.y = mX;
                 break;
             case Surface.ROTATION_180:
                 mParams.x = mX;
-                mParams.y = size.y - mY - mH;
+                mParams.y = size.y - mY_ - mH;
                 break;
             case Surface.ROTATION_270:
-                mParams.x = size.x - mY - mW - mNavigationBarSize;
+                mParams.x = size.x - mY_ - mW - mNavigationBarSize;
                 mParams.y = mX;
                 break;
             default:
@@ -454,4 +471,29 @@ public class FODCircleView extends ImageView implements OnTouchListener {
             }
         }
     };
+
+    private class CutoutSettingsObserver extends ContentObserver {
+        CutoutSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            getContext().getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.DISPLAY_CUTOUT_HIDDEN), false, this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.System.getUriFor(Settings.System.DISPLAY_CUTOUT_HIDDEN))) {
+                updateCutout();
+                if (mViewAdded) {
+                    resetPosition();
+                }
+            }
+        }
+    }
+    private void updateCutout() {
+        mDisplayCutoutHidden = Settings.System.getIntForUser(getContext().getContentResolver(),
+            Settings.System.DISPLAY_CUTOUT_HIDDEN, 0, UserHandle.USER_CURRENT) == 1;
+    }
 }
