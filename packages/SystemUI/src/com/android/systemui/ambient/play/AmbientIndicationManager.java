@@ -72,7 +72,6 @@ public class AmbientIndicationManager {
 
     public boolean isRecognitionEnabled() {
         if (!mIsRecognitionEnabled) {
-            updateAmbientPlayAlarm(true);
             return false;
         }
         if (mCurrentNetworkStatus == -1) {
@@ -111,19 +110,15 @@ public class AmbientIndicationManager {
             return;
         }
         lastAlarmInterval = 0;
-        if (!isRecognitionEnabled()) return;
-        int duration = 90000; // 1 minute and 30 seconds by default
+        if (!mIsRecognitionEnabled) return;
+        int duration = DEBUG ? 10000 : 90000; // 1 minute and 30 seconds by default or 10 seconds if debug enabled
         lastAlarmInterval = duration;
         mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, pendingIntent);
         if (DEBUG) Log.d(TAG, "updateAmbientPlayAlarm: Alarm scheduled");
     }
 
-    public int getRecordingMaxTime() {
-        return 10000; // 10 seconds
-    }
-
     public int getAmbientClearViewInterval() {
-        return 60000; // Interval to clean the view after song is detected. (Default 1 minute)
+        return 90000; // Interval to clean the view after song is detected. (Default 1 minute and 30 seconds)
     }
 
     private void updateNetworkStatus() {
