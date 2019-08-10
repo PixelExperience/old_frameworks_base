@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Base64;
 
 public class AmbientPlayProvider {
 
@@ -45,12 +44,18 @@ public class AmbientPlayProvider {
         }
     }
 
-    public static Observable getData(byte[] d, Context context) {
+    private Context mContext;
+
+    public AmbientPlayProvider(Context context){
+        mContext = context;
+    }
+
+    public Observable recognize() {
         Observable observed = new Observable();
-        if (!isAvailable(context)) {
+        if (!isAvailable(mContext)) {
             return observed;
         }
-        Cursor c = context.getContentResolver().query(Uri.parse("content://org.pixelexperience.ambient.play.provider/query/" + Uri.encode(Base64.encodeToString(d, Base64.DEFAULT))), PROJECTION_DEFAULT,
+        Cursor c = mContext.getContentResolver().query(Uri.parse("content://org.pixelexperience.ambient.play.provider/query/recognize"), PROJECTION_DEFAULT,
                 null, null, null);
         if (c != null) {
             try {

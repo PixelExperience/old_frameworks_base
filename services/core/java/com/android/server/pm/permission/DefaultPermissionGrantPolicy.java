@@ -80,6 +80,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.android.internal.util.custom.ambient.play.AmbientPlayProvider;
 import com.android.internal.util.custom.weather.WeatherClient;
 
 /**
@@ -96,7 +97,7 @@ import com.android.internal.util.custom.weather.WeatherClient;
  */
 public final class DefaultPermissionGrantPolicy {
     private static final String TAG = "DefaultPermGrantPolicy"; // must be <= 23 chars
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final int DEFAULT_FLAGS =
             PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DIRECT_BOOT_UNAWARE
@@ -864,6 +865,12 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(weatherClientPackage, LOCATION_PERMISSIONS, userId);
         }
 
+        // Ambient play provider
+        PackageParser.Package ambientPlayPackage = getSystemPackage(AmbientPlayProvider.SERVICE_PACKAGE);
+        if (ambientPlayPackage != null && doesPackageSupportRuntimePermissions(ambientPlayPackage)) {
+            grantRuntimePermissions(ambientPlayPackage, MICROPHONE_PERMISSIONS, userId);
+        }
+
         if (mPermissionGrantedCallback != null) {
             mPermissionGrantedCallback.onDefaultRuntimePermissionsGranted(userId);
         }
@@ -880,6 +887,7 @@ public final class DefaultPermissionGrantPolicy {
         if (googleSoundPackage != null) {
             grantRuntimePermissions(googleSoundPackage, STORAGE_PERMISSIONS, true, userId);
         }
+
     }
 
     private void grantDefaultPermissionsToDefaultSystemDialerApp(
