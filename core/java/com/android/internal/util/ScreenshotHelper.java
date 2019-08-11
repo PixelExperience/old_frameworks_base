@@ -28,6 +28,18 @@ public class ScreenshotHelper {
     private final Object mScreenshotLock = new Object();
     private ServiceConnection mScreenshotConnection = null;
     private final Context mContext;
+    private Handler mHandler;
+    final Runnable mLongshotTimeout = new Runnable() {
+        public void run() {
+            synchronized (mScreenshotLock) {
+                if (mScreenshotConnection != null) {
+                    mContext.unbindService(mScreenshotConnection);
+                    mScreenshotConnection = null;
+                    notifyScreenshotError();
+                }
+            }
+        }
+    };
 
     public ScreenshotHelper(Context context) {
         mContext = context;
@@ -134,6 +146,106 @@ public class ScreenshotHelper {
         errorIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT |
                 Intent.FLAG_RECEIVER_FOREGROUND);
         mContext.sendBroadcastAsUser(errorIntent, UserHandle.CURRENT);
+    }
+
+    /**
+     * Long screenshot methods
+     */
+    public void takeScreenshot(final int screenshotType, final boolean hasStatus,
+            final boolean hasNav, @NonNull Handler handler, final boolean isLongshot,
+            final Bundle screenshotBundle) {
+        synchronized (mScreenshotLock) {
+            if (mScreenshotConnection != null) {
+                return;
+            }
+            mHandler = handler;
+            final ComponentName serviceComponent = new ComponentName("com.oneplus.screenshot",
+                    "com.oneplus.screenshot.TakeScreenshotService");
+            final Intent serviceIntent = new Intent();
+
+            final Runnable mScreenshotTimeout = new Runnable() {
+                @Override public void run() {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != null) {
+                            mContext.unbindService(mScreenshotConnection);
+                            mScreenshotConnection = null;
+                            notifyScreenshotError();
+                        }
+                    }
+                }
+            };
+
+            serviceIntent.setComponent(serviceComponent);
+            ServiceConnection conn = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != this) {
+                            return;
+                        }
+                        Messenger messenger = new Messenger(service);
+                        Message msg = Message.obtain(null, screenshotType);
+                        final ServiceConnection myConn = this;
+                        Handler h = new Handler(handler.getLooper()) {
+                            @Override
+                            public void handleMessage(Message msg) {
+                                synchronized (mScreenshotLock) {
+                                    if (msg.what == 2) {
+                                        Log.d(TAG, "remove screenshot timeout");
+                                        handler.removeCallbacks(mLongshotTimeout);
+                                    } else if (mScreenshotConnection == myConn) {
+                                        mContext.unbindService(mScreenshotConnection);
+                                        mScreenshotConnection = null;
+                                        handler.removeCallbacks(mLongshotTimeout);
+                                    }
+                                }
+                            }
+                        };
+                        msg.replyTo = new Messenger(h);
+                        msg.arg1 = hasStatus ? 1: 0;
+                        msg.arg2 = hasNav ? 1: 0;
+                        msg.obj = screenshotBundle;
+                        try {
+                            messenger.send(msg);
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "Couldn't take screenshot: " + e);
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != null) {
+                            mContext.unbindService(mScreenshotConnection);
+                            mScreenshotConnection = null;
+                            handler.removeCallbacks(mScreenshotTimeout);
+                            notifyScreenshotError();
+                        }
+                    }
+                }
+            };
+            if (mContext.bindServiceAsUser(serviceIntent, conn,
+                    Context.BIND_AUTO_CREATE | Context.BIND_FOREGROUND_SERVICE_WHILE_AWAKE,
+                    UserHandle.CURRENT)) {
+                mScreenshotConnection = conn;
+                if (isLongshot) {
+                    handler.postDelayed(mLongshotTimeout, 120000);
+                } else {
+                    handler.postDelayed(mLongshotTimeout, SCREENSHOT_TIMEOUT_MS);
+                }
+            }
+        }
+    }
+
+    public void stopLongshotConnection() {
+        synchronized (mScreenshotLock) {
+            if (mScreenshotConnection != null) {
+                mContext.unbindService(mScreenshotConnection);
+                mScreenshotConnection = null;
+                mHandler.removeCallbacks(mLongshotTimeout);
+            }
+        }
     }
 
 }
