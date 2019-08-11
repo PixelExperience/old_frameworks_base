@@ -319,6 +319,8 @@ import dalvik.system.PathClassLoader;
 
 import com.android.internal.util.custom.NavbarUtils;
 
+import com.android.internal.custom.longshot.ILongScreenshotManager;
+
 /**
  * WindowManagerPolicy implementation for the Android phone UI.  This
  * introduces a new method suffix, Lp, for an internal lock of the
@@ -2080,10 +2082,27 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         @Override
         public void run() {
+            boolean longshot;
+            boolean inMultiWindow = mFocusedWindow != null ? mFocusedWindow.isInMultiWindowMode() : false;
+            boolean dockMinimized = mWindowManagerInternal.isMinimizedDock();
+            if (mScreenshotType == 2 || keyguardOn() || !isUserSetupComplete() ||
+                    !isDeviceProvisioned() || ((inMultiWindow && !dockMinimized) || mDisplayRotation != 0)) {
+                longshot = false;
+            } else {
+                longshot = true;
+            }
+            Bundle screenshotBundle = new Bundle();
+            screenshotBundle.putBoolean("longshot", longshot);
+            if (mFocusedWindow != null) {
+                screenshotBundle.putString("focusWindow", mFocusedWindow.getAttrs().packageName);
+            }
+            if (mScreenDecor != null && mScreenDecor.mUpExpand && (mDisplayRotation != 0 || !mStatusBar.isVisibleLw())) {
+                screenshotBundle.putInt("offset", mScreenDecor.mExpandOffset);
+            }
             if (!mPocketLockShowing){
                 mScreenshotHelper.takeScreenshot(mScreenshotType,
                         mStatusBar != null && mStatusBar.isVisibleLw(),
-                        mNavigationBar != null && mNavigationBar.isVisibleLw(), mHandler);
+                        mNavigationBar != null && mNavigationBar.isVisibleLw(), mHandler, longshot, screenshotBundle);
             }
         }
     }
@@ -2110,11 +2129,38 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         final boolean keyguardShowing = isKeyguardShowingAndNotOccluded();
         mGlobalActions.showDialog(keyguardShowing, isDeviceProvisioned());
+        stopLongshot();
         if (keyguardShowing) {
             // since it took two seconds of long press to bring this up,
             // poke the wake lock so they have some time to see the dialog.
             mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
         }
+    }
+
+    private void stopLongshot() {
+        ILongScreenshotManager shot = ILongScreenshotManager.Stub.asInterface(ServiceManager.getService(Context.LONGSCREENSHOT_SERVICE));
+        if (shot != null) {
+            try {
+                if (shot.isLongshotMode()) {
+                    shot.stopLongshot();
+                }
+            } catch (RemoteException e) {
+                Slog.d(TAG, e.toString());
+            }
+        }
+    }
+
+    @Override
+    public void stopLongshotConnection() {
+        if (mScreenshotHelper != null) {
+            mScreenshotHelper.stopLongshotConnection();
+        }
+    }
+
+    @Override
+    public void takeOPScreenshot(int type, int reason) {
+        mScreenshotRunnable.setScreenshotType(type);
+        mHandler.post(mScreenshotRunnable);
     }
 
     boolean isDeviceProvisioned() {
