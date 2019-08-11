@@ -378,7 +378,11 @@ public class Toast {
             params.width = WindowManager.LayoutParams.WRAP_CONTENT;
             params.format = PixelFormat.TRANSLUCENT;
             params.windowAnimations = com.android.internal.R.style.Animation_Toast;
-            params.type = WindowManager.LayoutParams.TYPE_TOAST;
+            if ("com.oneplus.screenshot".equals(packageName)) {
+                params.type = WindowManager.LayoutParams.TYPE_SYSTEM_LONGSHOT;
+            } else {
+                params.type = WindowManager.LayoutParams.TYPE_TOAST;
+            }
             params.setTitle("Toast");
             params.flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
