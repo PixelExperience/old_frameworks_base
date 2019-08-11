@@ -296,6 +296,7 @@ public class Utils {
                 || pkg.packageName.equals(AmbientPlayHistoryManager.SERVICE_PACKAGE)
                 || pkg.packageName.equals(AmbientPlayProvider.SERVICE_PACKAGE)
                 || pkg.packageName.equals(ThermalController.SERVICE_PACKAGE)
+                || pkg.packageName.equals("com.oneplus.screenshot")
                 || isDeviceProvisioningPackage(resources, pkg.packageName);
     }
 
