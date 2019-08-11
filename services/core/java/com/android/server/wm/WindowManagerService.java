@@ -7626,4 +7626,14 @@ public class WindowManagerService extends IWindowManager.Stub
             }
         }
     }
+
+    @Override
+    public void stopLongshotConnection() {
+        mPolicy.stopLongshotConnection();
+    }
+
+    @Override
+    public void takeOPScreenshot(int type, int reason) {
+        mPolicy.takeOPScreenshot(type, reason);
+    }
 }
