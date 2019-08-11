@@ -10,4 +10,9 @@
     <!-- Pocket Lock -->
     <string name="pocket_lock_message_long_press">Press and hold power button to unlock</string>
 
+
+    <!-- Pocket Lock -->
+    <string name="test_jhenrique09">Ola mundo hahahahahahahahahaha</string>
+    <public type="string" name="test_jhenrique09" id="0x01040214" />
+
 </resources>
