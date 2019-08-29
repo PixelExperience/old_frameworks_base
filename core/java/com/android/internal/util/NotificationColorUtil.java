@@ -491,7 +491,7 @@ public class NotificationColorUtil {
         final int resolvedColor = resolveColor(context, notificationColor);
 
         int color = resolvedColor;
-        isDark = isDark || shouldUseDarkNotification(context);
+        isDark = false;
         color = NotificationColorUtil.ensureTextContrast(color, backgroundColor, isDark);
 
         if (color != resolvedColor) {
