@@ -249,8 +249,14 @@ public class VolumeDialogImpl implements VolumeDialog {
         }
         mRingerIcon = mRinger.findViewById(R.id.ringer_icon);
         mZenIcon = mRinger.findViewById(R.id.dnd_icon);
+<<<<<<< HEAD   (13ad05 SettingsLib: Make custom bluetooth a2dp strings translatable)
         mSettingsView = mDialog.findViewById(R.id.settings_container);
         mSettingsIcon = mDialog.findViewById(R.id.settings);
+=======
+        mExpandRowsView = mDialog.findViewById(R.id.expandable_indicator_container);
+        mExpandRows = mDialog.findViewById(R.id.expandable_indicator);
+        mExpandRows.setDefaultDirection(!isAudioPanelOnLeftSide());
+>>>>>>> CHANGE (c78bbc VolumeDialogImpl: Fix expanded indicator direction)
 
         if (mRows.isEmpty()) {
             if (!AudioSystem.isSingleVolume(mContext)) {
