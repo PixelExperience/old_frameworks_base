@@ -278,4 +278,12 @@
          Represented as milliseconds from midnight (e.g. 21600000 == 6am). -->
     <integer name="config_defaultAutomaticThemeEndTime">21600000</integer>
 
+    <!-- True if the notification's dynamic app icon/title tint should be optimised for dark
+    backgrounds (requires config_allowNotificationIconTextTinting to be true)-->
+    <bool name="config_useDarkBgNotificationIconTextTinting">false</bool>
+
+    <!-- for notification overlays to force what they need -->
+    <bool name="config_useDarkBgNotificationTinting_override">false</bool>
+    <bool name="config_notificationTinting_override">false</bool>
+
 </resources>
