@@ -75,6 +75,9 @@ final class UiModeManagerService extends SystemService {
     // Enable launching of applications when entering the dock.
     private static final boolean ENABLE_LAUNCH_DESK_DOCK_APP = true;
 
+    // Night mode state
+    private static final String SYSTEM_PROPERTY_DEVICE_THEME = "persist.sys.theme";
+
     final Object mLock = new Object();
     private int mDockState = Intent.EXTRA_DOCK_STATE_UNDOCKED;
 

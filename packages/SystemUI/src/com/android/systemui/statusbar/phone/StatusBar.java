@@ -4175,6 +4175,9 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
                 && (config.uiMode & Configuration.UI_MODE_NIGHT_MASK)
                     == Configuration.UI_MODE_NIGHT_YES;
         final boolean useDarkTheme = wallpaperWantsDarkTheme || nightModeWantsDarkTheme;
+        SystemProperties.set("persist.sys.theme", useDarkTheme ?
+                "2" /* UiModeManager.MODE_NIGHT_YES */ :
+                "1" /* UiModeManager.MODE_NIGHT_NO */);
         if (themeNeedsRefresh || isUsingDarkTheme() != useDarkTheme) {
             mUiOffloadThread.submit(() -> {
                 try {
