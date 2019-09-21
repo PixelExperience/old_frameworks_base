@@ -45,6 +45,8 @@ import android.util.Pair;
 
 import com.android.internal.annotations.GuardedBy;
 
+import android.os.SystemProperties;
+
 /**
  * The AudioRecord class manages the audio resources for Java applications
  * to record audio from the audio input hardware of the platform. This is
@@ -970,6 +972,14 @@ public class AudioRecord implements AudioRouting
         return mSessionId;
     }
 
+
+    /**
+     * @hide
+     */
+    boolean isAmbientPlayRunning() {
+        return SystemProperties.get("sys.ambientplay.recording", "0").equals("1");
+    }
+
     //---------------------------------------------------------
     // Transport control methods
     //--------------------
@@ -986,6 +996,18 @@ public class AudioRecord implements AudioRouting
 
         // start recording
         synchronized(mRecordingStateLock) {
+            try {
+                Log.d(TAG, "Trying to detect ambient play");
+                if (isAmbientPlayRunning()){
+                    Log.d(TAG, "Ambient play detected, stopping all audio record instances");
+                    native_stop();
+                    Log.d(TAG, "Sucess stopping instances");
+                }else{
+                    Log.d(TAG, "Ambient play not detected");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception on isAmbientPlayRunning", e);
+            }
             if (native_start(MediaSyncEvent.SYNC_EVENT_NONE, 0) == SUCCESS) {
                 handleFullVolumeRec(true);
                 mRecordingState = RECORDSTATE_RECORDING;
