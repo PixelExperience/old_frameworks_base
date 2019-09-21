@@ -109,9 +109,9 @@ public class RecognitionObserver implements AmbientIndicationManagerCallback {
         if (mRecorderThread == null){
             mRecorderThread = new RecorderThread();
         }
-        mManager.updateRecordingProp(true);
         try{
             mRecorderThread.start();
+            mManager.updateRecordingProp(true);
         }catch(Exception e){
             stopRecording();
             mManager.dispatchRecognitionError();

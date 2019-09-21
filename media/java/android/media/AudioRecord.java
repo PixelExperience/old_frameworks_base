@@ -1000,7 +1000,8 @@ public class AudioRecord implements AudioRouting
                 Log.d(TAG, "Trying to detect ambient play");
                 if (isAmbientPlayRunning()){
                     Log.d(TAG, "Ambient play detected, stopping all audio record instances");
-                    native_stop();
+                    native_release();
+                    native_finalize();
                     Log.d(TAG, "Sucess stopping instances");
                 }else{
                     Log.d(TAG, "Ambient play not detected");

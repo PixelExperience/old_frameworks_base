@@ -68,7 +68,7 @@ public class AmbientIndicationManager {
     private boolean mIsBatteryLow = false;
     private int mCurrentNetworkStatus = -1;
     private AmbientPlayQuietPeriod mAmbientPlayQuietPeriod;
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
     private static final String PROPERTY_AMBIENT_PLAY_RECORDING = "sys.ambientplay.recording";
 
     private List<AmbientIndicationManagerCallback> mCallbacks;
