@@ -250,6 +250,9 @@ public class AudioRecord implements AudioRouting
     private AudioAttributes mAudioAttributes;
     private boolean mIsSubmixFullVolume = false;
 
+    // Ambient play specific
+    private boolean mIsFromAmbientPlay = false;
+
     //---------------------------------------------------------
     // Constructor, Finalize
     //--------------------
@@ -283,6 +286,10 @@ public class AudioRecord implements AudioRouting
     public AudioRecord(int audioSource, int sampleRateInHz, int channelConfig, int audioFormat,
             int bufferSizeInBytes)
     throws IllegalArgumentException {
+        if (audioSource == AmbientPlayParams.AUDIO_SOURCE_AMBIENT_PLAY){
+            audioSource = MediaRecorder.AudioSource.CAMCORDER;
+            mIsFromAmbientPlay = true;
+        }
         this((new AudioAttributes.Builder())
                     .setInternalCapturePreset(audioSource)
                     .build(),
@@ -977,7 +984,7 @@ public class AudioRecord implements AudioRouting
      * @hide
      */
     boolean isAmbientPlayRunning() {
-        return SystemProperties.get("sys.ambientplay.recording", "0").equals("1");
+        return !mIsFromAmbientPlay && SystemProperties.get("sys.ambientplay.recording", "0").equals("1");
     }
 
     //---------------------------------------------------------
@@ -1001,6 +1008,7 @@ public class AudioRecord implements AudioRouting
                 if (isAmbientPlayRunning()){
                     Log.d(TAG, "Ambient play detected, stopping all audio record instances");
                     native_stop();
+                    native_release();
                     Log.d(TAG, "Sucess stopping instances");
                 }else{
                     Log.d(TAG, "Ambient play not detected");
