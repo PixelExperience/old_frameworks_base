@@ -251,8 +251,11 @@ final class UiModeManagerService extends SystemService {
     }
 
     private void updateNightModeProp(int mode){
+        Slog.d(TAG, "updateNightModeProp called");
         if (UserManager.get(getContext()).isPrimaryUser()) {
+            Slog.d(TAG, "updateNightModeProp isPrimaryUser");
             if (!Objects.equals(SystemProperties.get(SYSTEM_PROPERTY_DEVICE_THEME), mode)) {
+                Slog.d(TAG, "updateNightModeProp defining prop");
                 SystemProperties.set(SYSTEM_PROPERTY_DEVICE_THEME, Integer.toString(mode));
             }
         }
