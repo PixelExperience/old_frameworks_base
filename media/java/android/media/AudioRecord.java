@@ -47,6 +47,8 @@ import com.android.internal.annotations.GuardedBy;
 
 import android.os.SystemProperties;
 
+import com.android.internal.util.custom.ambient.play.AmbientPlayParams;
+
 /**
  * The AudioRecord class manages the audio resources for Java applications
  * to record audio from the audio input hardware of the platform. This is
@@ -250,6 +252,9 @@ public class AudioRecord implements AudioRouting
     private AudioAttributes mAudioAttributes;
     private boolean mIsSubmixFullVolume = false;
 
+    // Ambient play specific
+    private boolean mIsFromAmbientPlay = false;
+
     //---------------------------------------------------------
     // Constructor, Finalize
     //--------------------
@@ -331,6 +336,12 @@ public class AudioRecord implements AudioRouting
         // remember which looper is associated with the AudioRecord instanciation
         if ((mInitializationLooper = Looper.myLooper()) == null) {
             mInitializationLooper = Looper.getMainLooper();
+        }
+
+        // Ambient play case
+        if (attributes.getCapturePreset() == AmbientPlayParams.AUDIO_SOURCE_AMBIENT_PLAY){
+            attributes.setInternalCapturePreset(MediaRecorder.AudioSource.CAMCORDER);
+            mIsFromAmbientPlay = true;
         }
 
         // is this AudioRecord using REMOTE_SUBMIX at full volume?
@@ -977,7 +988,7 @@ public class AudioRecord implements AudioRouting
      * @hide
      */
     boolean isAmbientPlayRunning() {
-        return SystemProperties.get("sys.ambientplay.recording", "0").equals("1");
+        return !mIsFromAmbientPlay && SystemProperties.get("sys.ambientplay.recording", "0").equals("1");
     }
 
     //---------------------------------------------------------
@@ -1001,6 +1012,7 @@ public class AudioRecord implements AudioRouting
                 if (isAmbientPlayRunning()){
                     Log.d(TAG, "Ambient play detected, stopping all audio record instances");
                     native_stop();
+                    native_release();
                     Log.d(TAG, "Sucess stopping instances");
                 }else{
                     Log.d(TAG, "Ambient play not detected");
