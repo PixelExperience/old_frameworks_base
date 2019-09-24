@@ -365,9 +365,9 @@ public class MobileSignalController extends SignalController<
     private int getVolteResId() {
         int resId = 0;
 
-        if (mCurrentState.imsResitered && isNotchHidden() && mVoLTEicon) {
+        //if (mCurrentState.imsResitered && isNotchHidden() && mVoLTEicon) {
             resId = R.drawable.ic_volte;
-        }
+        //}
         return resId;
     }
 
@@ -412,8 +412,7 @@ public class MobileSignalController extends SignalController<
         showDataIcon &= mCurrentState.isDefault || dataDisabled;
 
         int typeIcon = (showDataIcon || mConfig.alwaysShowDataRatIcon) ? icons.mDataType : 0;
-        int volteIcon = isEnhanced4gLteModeSettingEnabled()
-                ? getVolteResId() : 0;
+        int volteIcon = getVolteResId();
         callback.setMobileDataIndicators(statusIcon, qsIcon, typeIcon, qsTypeIcon,
                 activityIn, activityOut, volteIcon, dataContentDescription, description, icons.mIsWide,
                 mSubscriptionInfo.getSubscriptionId(), mCurrentState.roaming);
